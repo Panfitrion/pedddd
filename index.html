@@ -7,33 +7,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --negro: #0a0a0a;
-      --dorado: #c9a84c;
-      --dorado-oscuro: #9a7a2e;
-      --blanco: #f5f2eb;
-      --gris: #1a1a1a;
-      --gris2: #242424;
-      --tenue: #b0a070;
+      --negro: #0a0a0a; --dorado: #c9a84c; --dorado-osc: #9a7a2e;
+      --blanco: #f5f2eb; --gris: #1a1a1a; --gris2: #242424; --tenue: #b0a070;
     }
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
     body { background:var(--negro); color:var(--blanco); font-family:'DM Sans',sans-serif; min-height:100vh; }
 
     /* HEADER */
-    .header {
-      background:var(--negro);
-      border-bottom:1px solid rgba(201,168,76,0.18);
-      padding:18px 20px 14px;
-      position:sticky; top:0; z-index:50;
-    }
+    .header { background:var(--negro); border-bottom:1px solid rgba(201,168,76,0.18); padding:18px 20px 14px; position:sticky; top:0; z-index:50; }
     .header-marca { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-    .marca-circulo {
-      width:34px; height:34px; border-radius:50%;
-      border:1.5px solid var(--dorado);
-      display:flex; align-items:center; justify-content:center;
-      flex-shrink:0;
-    }
+    .marca-circulo { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--dorado); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .marca-circulo img { width:26px; height:26px; object-fit:contain; display:none; }
-    .marca-circulo .marca-letra { font-family:'Playfair Display',serif; font-size:14px; font-weight:900; color:var(--dorado); }
+    .marca-letra { font-family:'Playfair Display',serif; font-size:14px; font-weight:900; color:var(--dorado); }
     .marca-nombre { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; letter-spacing:0.03em; }
     .marca-nombre span { color:var(--dorado); }
     .cafe-titulo { font-family:'Playfair Display',serif; font-size:24px; font-weight:900; line-height:1.1; }
@@ -48,28 +33,17 @@
     .error-titulo { font-family:'Playfair Display',serif; font-size:20px; }
     .error-texto { font-size:13px; color:var(--tenue); line-height:1.6; }
 
-    /* CATEGORÍAS */
-    .cats { display:flex; gap:8px; padding:12px 20px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid rgba(255,255,255,0.05); }
-    .cats::-webkit-scrollbar { display:none; }
-    .cat-btn { flex-shrink:0; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:500; border:1px solid rgba(201,168,76,0.25); color:var(--tenue); background:transparent; cursor:pointer; transition:all .2s; white-space:nowrap; }
-    .cat-btn.on { background:var(--dorado); border-color:var(--dorado); color:var(--negro); font-weight:600; }
-
-    /* SECCIÓN */
-    .seccion { padding:0 20px; }
-    .sec-titulo { font-size:10px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--dorado); padding:18px 0 8px; border-bottom:1px solid rgba(201,168,76,0.12); margin-bottom:2px; }
-
-    /* PRODUCTO */
-    .prod { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.05); gap:14px; }
+    /* LISTA DE PRODUCTOS (sin categorías ni precios) */
+    .lista-prods { padding:0 20px; }
+    .prod { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05); gap:14px; }
     .prod:last-child { border-bottom:none; }
-    .prod-info { flex:1; }
-    .prod-nombre { font-size:15px; font-weight:500; }
-    .prod-precio { font-size:12px; color:var(--tenue); margin-top:2px; }
+    .prod-nombre { font-size:15px; font-weight:500; flex:1; line-height:1.3; }
 
     /* CONTROL CANTIDAD */
     .cant-ctrl { display:flex; align-items:center; background:var(--gris); border-radius:10px; border:1px solid rgba(201,168,76,0.12); overflow:hidden; flex-shrink:0; }
-    .cant-btn { width:36px; height:36px; background:transparent; border:none; color:var(--dorado); font-size:20px; font-weight:300; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .cant-btn { width:38px; height:38px; background:transparent; border:none; color:var(--dorado); font-size:22px; font-weight:300; cursor:pointer; display:flex; align-items:center; justify-content:center; }
     .cant-btn:active { background:rgba(201,168,76,0.12); }
-    .cant-val { min-width:28px; text-align:center; font-size:14px; font-weight:600; color:var(--blanco); }
+    .cant-val { min-width:30px; text-align:center; font-size:15px; font-weight:600; color:var(--blanco); cursor:pointer; }
     .cant-val.on { color:var(--dorado); }
 
     /* TECLADO */
@@ -78,13 +52,13 @@
     .teclado-panel { width:100%; background:var(--gris2); border-radius:20px 20px 0 0; padding:18px 18px 32px; animation:subir .22s ease; }
     @keyframes subir { from { transform:translateY(100%); } }
     .teclado-nombre { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; margin-bottom:14px; }
-    .teclado-display { background:var(--negro); border-radius:12px; height:72px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:40px; font-weight:700; color:var(--dorado); margin-bottom:14px; letter-spacing:-1px; }
+    .teclado-display { background:var(--negro); border-radius:12px; height:72px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:42px; font-weight:700; color:var(--dorado); margin-bottom:14px; letter-spacing:-1px; }
     .teclado-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
-    .tecla { background:var(--gris); border:none; border-radius:12px; height:56px; font-size:21px; font-weight:500; color:var(--blanco); cursor:pointer; font-family:'DM Sans',sans-serif; transition:transform .1s; }
-    .tecla:active { transform:scale(.95); background:rgba(201,168,76,0.2); }
+    .tecla { background:var(--gris); border:none; border-radius:12px; height:58px; font-size:22px; font-weight:500; color:var(--blanco); cursor:pointer; font-family:'DM Sans',sans-serif; transition:transform .1s; }
+    .tecla:active { transform:scale(.95); background:rgba(201,168,76,0.18); }
     .tecla.del { font-size:17px; color:var(--tenue); }
     .tecla.ok { background:var(--dorado); color:var(--negro); font-weight:700; font-size:15px; }
-    .tecla.ok:active { background:var(--dorado-oscuro); }
+    .tecla.ok:active { background:var(--dorado-osc); }
 
     /* NOTAS */
     .notas-wrap { padding:18px 20px 0; }
@@ -99,7 +73,7 @@
     .bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
     .bar-label { font-size:12px; color:var(--tenue); }
     .bar-count { font-size:14px; font-weight:600; color:var(--dorado); }
-    .btn-enviar { width:100%; background:var(--dorado); border:none; border-radius:13px; padding:15px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:var(--negro); cursor:pointer; transition:opacity .2s; }
+    .btn-enviar { width:100%; background:var(--dorado); border:none; border-radius:13px; padding:15px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:var(--negro); cursor:pointer; }
     .btn-enviar:active { opacity:.85; }
     .btn-enviar:disabled { opacity:.4; }
     .espacio { height:110px; }
@@ -141,7 +115,6 @@
 
 <div class="espacio"></div>
 
-<!-- BARRA ENVIAR -->
 <div class="bar" id="bar">
   <div class="bar-top">
     <span class="bar-label">Tu pedido</span>
@@ -153,7 +126,7 @@
 <!-- TECLADO -->
 <div class="teclado-bg" id="tecladoBg">
   <div class="teclado-panel" id="tecladoPanel">
-    <div class="teclado-nombre" id="tecladoNombre">Producto</div>
+    <div class="teclado-nombre" id="tecladoNombre"></div>
     <div class="teclado-display" id="tecladoDisplay">0</div>
     <div class="teclado-grid">
       <button class="tecla" data-k="7">7</button>
@@ -201,14 +174,11 @@
   let tecladoVal = '';
   let pedidoActual = null;
 
-  // ── INIT ──
   async function init() {
     const slug = new URLSearchParams(window.location.search).get('cafe');
     if (!slug) { mostrarError('Link inválido', 'No se especificó ninguna cafetería.<br>Contacta a Panfitrión para obtener tu link.'); return; }
-
     const { data, error } = await sb.from('cafeterias').select('*').eq('slug', slug).single();
-    if (error || !data) { mostrarError('Cafetería no encontrada', `No existe una cafetería con el link <b>${slug}</b>.<br>Contacta a Panfitrión.`); return; }
-
+    if (error || !data) { mostrarError('Cafetería no encontrada', 'Contacta a Panfitrión para obtener tu link correcto.'); return; }
     cafe = data;
     menu = data.menu || [];
     menu.forEach(p => cantidades[p.id] = 0);
@@ -217,67 +187,38 @@
     renderMenu();
   }
 
-  // ── RENDER ──
   function renderMenu() {
     const el = document.getElementById('contenido');
     if (!menu.length) { el.innerHTML = '<div class="estado"><p>Esta cafetería aún no tiene productos.</p></div>'; return; }
 
-    const cats = [...new Set(menu.map(p => p.categoria || 'General'))];
-    let html = '';
-
-    if (cats.length > 1) {
-      html += '<div class="cats">';
-      cats.forEach((c, i) => {
-        html += `<button class="cat-btn ${i===0?'on':''}" data-cat="${c}">${c}</button>`;
-      });
-      html += '</div>';
-    }
-
-    cats.forEach(cat => {
-      html += `<div class="seccion" id="cat-${cat}">`;
-      html += `<div class="sec-titulo">${cat}</div>`;
-      menu.filter(p => (p.categoria||'General') === cat).forEach(p => {
-        html += `
-          <div class="prod" id="prod-${p.id}">
-            <div class="prod-info">
-              <div class="prod-nombre">${p.nombre}</div>
-              ${p.precio ? `<div class="prod-precio">$${p.precio}</div>` : ''}
-            </div>
-            <div class="cant-ctrl">
-              <button class="cant-btn" data-action="dec" data-id="${p.id}">−</button>
-              <div class="cant-val" id="v-${p.id}" data-id="${p.id}">0</div>
-              <button class="cant-btn" data-action="inc" data-id="${p.id}">+</button>
-            </div>
-          </div>`;
-      });
-      html += `</div>`;
+    // Lista plana, sin categorías ni precios
+    let html = '<div class="lista-prods">';
+    menu.forEach(p => {
+      html += `<div class="prod" id="prod-${p.id}">
+        <div class="prod-nombre">${p.nombre}</div>
+        <div class="cant-ctrl">
+          <button class="cant-btn" data-action="dec" data-id="${p.id}">−</button>
+          <div class="cant-val" id="v-${p.id}" data-id="${p.id}">0</div>
+          <button class="cant-btn" data-action="inc" data-id="${p.id}">+</button>
+        </div>
+      </div>`;
     });
-
+    html += '</div>';
     html += '<div class="notas-wrap"><label class="notas-label">Notas</label><textarea class="notas-ta" id="notas" placeholder="Alergias, preferencias, indicaciones…"></textarea></div>';
     el.innerHTML = html;
 
-    // Eventos categorías
-    el.querySelectorAll('.cat-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        el.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('on'));
-        btn.classList.add('on');
-        document.getElementById('cat-' + btn.dataset.cat)?.scrollIntoView({ behavior:'smooth', block:'start' });
-      });
-    });
-
-    // Eventos botones +/-
     el.querySelectorAll('.cant-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = btn.dataset.id;
-        if (btn.dataset.action === 'inc') cantidades[id] = Math.min((cantidades[id]||0)+1, 99);
-        else cantidades[id] = Math.max((cantidades[id]||0)-1, 0);
+        cantidades[id] = btn.dataset.action === 'inc'
+          ? Math.min((cantidades[id]||0)+1, 99)
+          : Math.max((cantidades[id]||0)-1, 0);
         actualizarDisplay(id);
       });
     });
 
-    // Abrir teclado al tocar el número
-    el.querySelectorAll('.cant-val').forEach(el2 => {
-      el2.addEventListener('click', () => abrirTeclado(el2.dataset.id));
+    el.querySelectorAll('.cant-val').forEach(v => {
+      v.addEventListener('click', () => abrirTeclado(v.dataset.id));
     });
   }
 
@@ -292,17 +233,15 @@
 
   function actualizarBar() {
     const total = Object.values(cantidades).reduce((a,b)=>a+b, 0);
-    const bar = document.getElementById('bar');
     document.getElementById('barCount').textContent = total + (total===1?' producto':' productos');
-    bar.classList.toggle('show', total > 0);
+    document.getElementById('bar').classList.toggle('show', total > 0);
   }
 
-  // ── TECLADO ──
+  // TECLADO
   function abrirTeclado(id) {
     tecladoProdId = id;
     tecladoVal = cantidades[id] > 0 ? String(cantidades[id]) : '';
-    const prod = menu.find(p => p.id === id);
-    document.getElementById('tecladoNombre').textContent = prod ? prod.nombre : '';
+    document.getElementById('tecladoNombre').textContent = menu.find(p=>p.id===id)?.nombre || '';
     document.getElementById('tecladoDisplay').textContent = tecladoVal || '0';
     document.getElementById('tecladoBg').classList.add('show');
   }
@@ -317,10 +256,7 @@
     if (k === 'del') {
       tecladoVal = tecladoVal.slice(0,-1);
     } else if (k === 'ok') {
-      if (tecladoProdId !== null) {
-        cantidades[tecladoProdId] = parseInt(tecladoVal) || 0;
-        actualizarDisplay(tecladoProdId);
-      }
+      if (tecladoProdId !== null) { cantidades[tecladoProdId] = parseInt(tecladoVal)||0; actualizarDisplay(tecladoProdId); }
       cerrarTeclado(); return;
     } else {
       if (tecladoVal.length >= 2) return;
@@ -335,76 +271,55 @@
     tecladoProdId = null; tecladoVal = '';
   }
 
-  // ── ENVIAR ──
+  // ENVIAR
   document.getElementById('btnEnviar').addEventListener('click', async () => {
-    const seleccionados = menu.filter(p => (cantidades[p.id]||0) > 0)
-      .map(p => ({ id:p.id, nombre:p.nombre, cantidad:cantidades[p.id], precio:p.precio||null }));
-
+    const seleccionados = menu.filter(p=>(cantidades[p.id]||0)>0).map(p=>({ id:p.id, nombre:p.nombre, cantidad:cantidades[p.id] }));
     if (!seleccionados.length) { toast('Agrega al menos un producto'); return; }
-
     const btn = document.getElementById('btnEnviar');
     btn.disabled = true; btn.textContent = 'Guardando…';
-
     const notas = document.getElementById('notas')?.value || '';
-
     try {
-      const { data, error } = await sb.from('pedidos').insert([{
-        cafeteria_id: cafe.id,
-        cafeteria_nombre: cafe.nombre,
-        productos: seleccionados,
-        notas,
-        fecha: new Date().toISOString()
-      }]).select().single();
-
+      const { error } = await sb.from('pedidos').insert([{
+        cafeteria_id: cafe.id, cafeteria_nombre: cafe.nombre,
+        productos: seleccionados, notas, fecha: new Date().toISOString()
+      }]);
       if (error) throw error;
       pedidoActual = { productos: seleccionados, notas, cafeteria: cafe.nombre };
       document.getElementById('modalBg').classList.add('show');
-
     } catch(e) {
-      console.error(e);
-      toast('Error al guardar. Intenta de nuevo.');
+      console.error(e); toast('Error al guardar. Intenta de nuevo.');
     } finally {
       btn.disabled = false; btn.textContent = 'Enviar pedido';
     }
   });
 
-  // ── WHATSAPP ──
+  // WHATSAPP
   document.getElementById('btnWA').addEventListener('click', () => {
     if (!pedidoActual) return;
-    const fecha = new Date().toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    const fecha = new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
     let msg = `🥖 *Pedido Panfitrión*\n📍 *${pedidoActual.cafeteria}*\n📅 ${fecha}\n\n*Productos:*\n`;
     pedidoActual.productos.forEach(p => { msg += `• ${p.nombre}: *${p.cantidad}*\n`; });
     if (pedidoActual.notas.trim()) msg += `\n📝 *Notas:* ${pedidoActual.notas.trim()}`;
-
-    if (navigator.share) {
-      navigator.share({ title:'Pedido Panfitrión', text: msg }).catch(()=>{});
-    } else {
-      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
-    }
+    if (navigator.share) { navigator.share({ title:'Pedido Panfitrión', text:msg }).catch(()=>{}); }
+    else { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); }
   });
 
   document.getElementById('btnOtroPedido').addEventListener('click', () => {
     document.getElementById('modalBg').classList.remove('show');
-    menu.forEach(p => { cantidades[p.id] = 0; actualizarDisplay(p.id); });
-    if (document.getElementById('notas')) document.getElementById('notas').value = '';
+    menu.forEach(p=>{ cantidades[p.id]=0; actualizarDisplay(p.id); });
+    if (document.getElementById('notas')) document.getElementById('notas').value='';
     pedidoActual = null;
   });
 
-  // ── TOAST ──
   function toast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
-    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 3000);
+    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'),3000);
   }
 
   function mostrarError(titulo, texto) {
     document.getElementById('cafeTitulo').textContent = titulo;
-    document.getElementById('contenido').innerHTML = `
-      <div class="estado">
-        <div class="error-icon">🍞</div>
-        <div class="error-titulo">${titulo}</div>
-        <div class="error-texto">${texto}</div>
-      </div>`;
+    document.getElementById('contenido').innerHTML = `<div class="estado"><div class="error-icon">🍞</div><div class="error-titulo">${titulo}</div><div class="error-texto">${texto}</div></div>`;
   }
 
   init();
