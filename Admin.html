@@ -1052,22 +1052,39 @@
         if (nom) sucursales.push(nom);
       });
 
-      const datos = { nombre, slug, menu, sucursales };
       let error;
+      const esEdicion = !!editandoId;
 
-      if (editandoId) {
-        ({ error } = await db.from('cafeterias').update(datos).eq('id', editandoId));
+      if (esEdicion) {
+        // UPDATE: solo los campos editables, nunca tocar el slug si no cambió
+        ({ error } = await db
+          .from('cafeterias')
+          .update({ nombre, slug, menu, sucursales })
+          .eq('id', editandoId)
+          .select()
+        );
       } else {
-        ({ error } = await db.from('cafeterias').insert([{ ...datos, created_at: new Date().toISOString() }]));
+        // INSERT: nueva cafetería
+        ({ error } = await db
+          .from('cafeterias')
+          .insert([{ nombre, slug, menu, sucursales, created_at: new Date().toISOString() }])
+          .select()
+        );
       }
 
       if (error) {
-        mostrarToast(error.code === '23505' ? 'Ese slug ya está en uso' : 'Error al guardar', 'err');
+        if (error.code === '23505') {
+          mostrarToast('Ese slug ya está en uso, elige otro', 'err');
+        } else {
+          console.error('Error Supabase:', error);
+          mostrarToast(`Error al guardar: ${error.message || error.code}`, 'err');
+        }
         return;
       }
 
+      const mensajeExito = esEdicion ? 'Cafetería actualizada' : 'Cafetería creada';
       cerrarModal();
-      mostrarToast(editandoId ? 'Cafetería actualizada' : 'Cafetería creada', 'ok');
+      mostrarToast(mensajeExito, 'ok');
       cargarCafeterias();
       cargarSelectorCafeterias();
     }
