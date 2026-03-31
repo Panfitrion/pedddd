@@ -4,422 +4,1178 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panfitrión — Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    /* ── Variables ── */
     :root {
-      --negro: #0a0a0a; --dorado: #c9a84c; --dorado-osc: #9a7a2e;
-      --blanco: #f5f2eb; --gris: #161616; --gris2: #202020; --gris3: #2a2a2a;
-      --tenue: #888; --rojo: #e05252; --verde: #4caf7d;
+      --negro:  #0a0a0a;
+      --dorado: #c9a84c;
+      --blanco: #f5f2eb;
+      --gris1:  #161616;
+      --gris2:  #202020;
+      --gris3:  #2a2a2a;
+      --tenue:  #888888;
+      --rojo:   #e05252;
+      --verde:  #4caf7d;
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:var(--negro); color:var(--blanco); font-family:'DM Sans',sans-serif; min-height:100vh; }
-
-    /* ── LOGIN ── */
-    #loginScreen { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; padding:40px 24px; }
-    .login-logo { font-family:'Playfair Display',serif; font-size:26px; font-weight:900; margin-bottom:4px; }
-    .login-logo span { color:var(--dorado); }
-    .login-sub { font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--tenue); margin-bottom:36px; }
-    .login-card { width:100%; max-width:360px; background:var(--gris); border-radius:18px; padding:28px 24px; border:1px solid var(--gris3); }
-    .login-card h2 { font-family:'Playfair Display',serif; font-size:19px; font-weight:700; margin-bottom:22px; }
-    .campo { margin-bottom:14px; }
-    .campo label { display:block; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--tenue); margin-bottom:7px; font-weight:600; }
-    .campo input { width:100%; background:var(--negro); border:1px solid var(--gris3); border-radius:9px; padding:11px 13px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:14px; outline:none; }
-    .campo input:focus { border-color:var(--dorado); }
-    .btn-login { width:100%; background:var(--dorado); border:none; border-radius:11px; padding:13px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:var(--negro); cursor:pointer; margin-top:6px; }
-    .btn-login:hover { opacity:.9; }
-    .login-error { color:var(--rojo); font-size:12px; margin-top:10px; text-align:center; display:none; }
-
-    /* ── DASHBOARD ── */
-    #dashboard { display:none; }
-    .sidebar { width:230px; background:var(--gris); border-right:1px solid var(--gris3); height:100vh; position:fixed; top:0; left:0; display:flex; flex-direction:column; }
-    .sb-logo { padding:24px 20px 18px; border-bottom:1px solid var(--gris3); }
-    .sb-logo h1 { font-family:'Playfair Display',serif; font-size:19px; font-weight:900; }
-    .sb-logo h1 span { color:var(--dorado); }
-    .sb-logo small { font-size:10px; color:var(--tenue); letter-spacing:.1em; text-transform:uppercase; }
-    .sb-nav { padding:14px 10px; flex:1; }
-    .nav-item { display:flex; align-items:center; gap:9px; padding:10px 13px; border-radius:9px; cursor:pointer; font-size:13px; font-weight:500; color:var(--tenue); transition:all .18s; margin-bottom:3px; }
-    .nav-item:hover { background:var(--gris2); color:var(--blanco); }
-    .nav-item.on { background:rgba(201,168,76,.1); color:var(--dorado); }
-    .sb-footer { padding:14px 10px; border-top:1px solid var(--gris3); }
-    .btn-logout { width:100%; background:transparent; border:1px solid var(--gris3); border-radius:9px; padding:9px; color:var(--tenue); font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; }
-    .btn-logout:hover { border-color:var(--rojo); color:var(--rojo); }
-    .main { margin-left:230px; min-height:100vh; padding:36px; }
-    .panel { display:none; }
-    .panel.on { display:block; }
-    .panel-hdr { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; gap:14px; }
-    .panel-hdr h2 { font-family:'Playfair Display',serif; font-size:24px; font-weight:900; }
-    .panel-hdr p { font-size:12px; color:var(--tenue); margin-top:4px; }
-    .btn-p { background:var(--dorado); border:none; border-radius:9px; padding:9px 18px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; color:var(--negro); cursor:pointer; white-space:nowrap; }
-    .btn-p:hover { opacity:.9; }
-
-    /* CAFETERÍAS */
-    .cafe-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px; }
-    .cafe-card { background:var(--gris); border:1px solid var(--gris3); border-radius:14px; padding:22px; }
-    .cafe-card:hover { border-color:rgba(201,168,76,.28); }
-    .cc-hdr { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; }
-    .cc-nombre { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; }
-    .cc-slug { font-size:11px; color:var(--dorado); margin-top:3px; font-family:monospace; }
-    .cc-btns { display:flex; gap:7px; }
-    .btn-ico { background:var(--gris2); border:none; border-radius:7px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:13px; }
-    .btn-ico:hover { background:var(--gris3); }
-    .btn-ico.del:hover { background:rgba(224,82,82,.15); }
-    .cc-link { background:var(--negro); border:1px solid var(--gris3); border-radius:8px; padding:9px 11px; display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
-    .cc-link code { font-size:10px; color:var(--tenue); font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .btn-copy { background:rgba(201,168,76,.12); border:none; border-radius:6px; padding:4px 9px; font-size:11px; color:var(--dorado); cursor:pointer; font-weight:600; white-space:nowrap; }
-    .btn-copy:hover { background:rgba(201,168,76,.22); }
-    .cc-prods { font-size:12px; color:var(--tenue); }
-    .cc-prods strong { color:var(--blanco); }
-
-    /* PEDIDOS */
-    .filtros { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
-    .sel, .inp-fecha { background:var(--gris); border:1px solid var(--gris3); border-radius:8px; padding:8px 11px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
-    .sel:focus, .inp-fecha:focus { border-color:var(--dorado); }
-    .tabla-wrap { background:var(--gris); border:1px solid var(--gris3); border-radius:14px; overflow:hidden; }
-    table { width:100%; border-collapse:collapse; }
-    thead { background:var(--gris2); border-bottom:1px solid var(--gris3); }
-    th { padding:11px 15px; text-align:left; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--tenue); font-weight:600; }
-    td { padding:13px 15px; font-size:13px; border-bottom:1px solid rgba(42,42,42,.5); vertical-align:top; }
-    tr:last-child td { border-bottom:none; }
-    tr:hover td { background:rgba(255,255,255,.015); }
-    .badge { background:rgba(201,168,76,.1); color:var(--dorado); padding:3px 9px; border-radius:18px; font-size:11px; font-weight:600; white-space:nowrap; }
-    .prods-td { font-size:12px; line-height:1.9; }
-    .prods-td .pi { color:var(--blanco); }
-    .prods-td .pi span { color:var(--dorado); font-weight:600; }
-    .notas-td { font-size:12px; color:var(--tenue); font-style:italic; max-width:180px; }
-    .fecha-td { font-size:11px; color:var(--tenue); white-space:nowrap; }
-    .empty { text-align:center; padding:50px 24px; color:var(--tenue); }
-    .empty .ic { font-size:36px; margin-bottom:10px; }
-    .empty p { font-size:13px; }
-
-    /* MODAL */
-    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:500; display:none; align-items:center; justify-content:center; padding:24px; }
-    .modal-bg.show { display:flex; }
-    .modal-box { background:var(--gris); border-radius:18px; border:1px solid var(--gris3); padding:28px; width:100%; max-width:540px; max-height:90vh; overflow-y:auto; }
-    .modal-title { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:22px; display:flex; justify-content:space-between; align-items:center; }
-    .btn-close { background:none; border:none; color:var(--tenue); font-size:22px; cursor:pointer; line-height:1; }
-    .fg { margin-bottom:18px; }
-    .fg label { display:block; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--tenue); margin-bottom:7px; font-weight:600; }
-    .fg input { width:100%; background:var(--negro); border:1px solid var(--gris3); border-radius:9px; padding:11px 13px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:13px; outline:none; }
-    .fg input:focus { border-color:var(--dorado); }
-    .fg small { display:block; font-size:11px; color:var(--tenue); margin-top:5px; }
-    .prods-editor { background:var(--negro); border:1px solid var(--gris3); border-radius:10px; overflow:hidden; }
-    .prods-hdr { display:grid; grid-template-columns:1fr 36px; gap:7px; padding:7px 11px; background:var(--gris2); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--tenue); font-weight:600; }
-    .prod-fila { display:grid; grid-template-columns:1fr 36px; gap:7px; padding:9px 11px; border-bottom:1px solid var(--gris3); align-items:center; }
-    .prod-fila:last-child { border-bottom:none; }
-    .prod-fila input { background:var(--gris2); border:1px solid transparent; border-radius:7px; padding:7px 9px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:12px; outline:none; width:100%; }
-    .prod-fila input:focus { border-color:rgba(201,168,76,.35); }
-    .btn-del-prod { background:none; border:none; color:var(--tenue); cursor:pointer; font-size:15px; display:flex; align-items:center; justify-content:center; height:30px; width:30px; border-radius:6px; }
-    .btn-del-prod:hover { background:rgba(224,82,82,.12); color:var(--rojo); }
-    .btn-add-prod { width:100%; background:transparent; border:none; padding:9px; color:var(--dorado); font-size:12px; font-weight:600; cursor:pointer; text-align:center; font-family:'DM Sans',sans-serif; }
-    .btn-add-prod:hover { background:rgba(201,168,76,.07); }
-    .modal-footer { display:flex; justify-content:flex-end; gap:9px; margin-top:24px; }
-    .btn-s { background:transparent; border:1px solid var(--gris3); border-radius:9px; padding:9px 18px; color:var(--tenue); font-family:'DM Sans',sans-serif; font-size:13px; cursor:pointer; }
-
-    /* SPINNER / TOAST */
-    .spin { width:14px; height:14px; border:2px solid rgba(201,168,76,.15); border-top-color:var(--dorado); border-radius:50%; animation:spin .8s linear infinite; display:inline-block; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .toast { position:fixed; bottom:28px; right:28px; background:var(--gris2); color:var(--blanco); padding:11px 18px; border-radius:9px; font-size:13px; z-index:1000; border:1px solid var(--gris3); transform:translateY(70px); opacity:0; transition:all .3s; }
-    .toast.show { transform:translateY(0); opacity:1; }
-    .toast.ok { border-color:var(--verde); }
-    .toast.err { border-color:var(--rojo); }
-    @media(max-width:860px) { .sidebar { display:none; } .main { margin-left:0; padding:22px 14px; } }
+ 
+    /* ── Reset ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+    body {
+      background: var(--negro);
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+ 
+    /* ─────────────────────────────────────────
+       LOGIN
+    ───────────────────────────────────────── */
+    #loginScreen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+ 
+    .login-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+ 
+    .login-logo span { color: var(--dorado); }
+ 
+    .login-sub {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--tenue);
+      margin-bottom: 36px;
+    }
+ 
+    .login-card {
+      width: 100%;
+      max-width: 360px;
+      background: var(--gris1);
+      border: 1px solid var(--gris3);
+      border-radius: 18px;
+      padding: 28px 24px;
+    }
+ 
+    .login-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 19px;
+      font-weight: 700;
+      margin-bottom: 22px;
+    }
+ 
+    .campo { margin-bottom: 14px; }
+ 
+    .campo label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--tenue);
+      margin-bottom: 7px;
+    }
+ 
+    .campo input {
+      width: 100%;
+      background: var(--negro);
+      border: 1px solid var(--gris3);
+      border-radius: 9px;
+      padding: 11px 13px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+ 
+    .campo input:focus { border-color: var(--dorado); }
+ 
+    .btn-login {
+      width: 100%;
+      background: var(--dorado);
+      border: none;
+      border-radius: 11px;
+      padding: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--negro);
+      cursor: pointer;
+      margin-top: 6px;
+    }
+ 
+    .btn-login:hover { opacity: 0.9; }
+ 
+    .login-error {
+      color: var(--rojo);
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: center;
+      display: none;
+    }
+ 
+    /* ─────────────────────────────────────────
+       DASHBOARD
+    ───────────────────────────────────────── */
+    #dashboard { display: none; }
+ 
+    /* Sidebar */
+    .sidebar {
+      width: 230px;
+      background: var(--gris1);
+      border-right: 1px solid var(--gris3);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+    }
+ 
+    .sidebar-logo {
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid var(--gris3);
+    }
+ 
+    .sidebar-logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 19px;
+      font-weight: 900;
+    }
+ 
+    .sidebar-logo h1 span { color: var(--dorado); }
+ 
+    .sidebar-logo small {
+      font-size: 10px;
+      color: var(--tenue);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+ 
+    .sidebar-nav { padding: 14px 10px; flex: 1; }
+ 
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 13px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--tenue);
+      transition: all 0.18s;
+      margin-bottom: 3px;
+    }
+ 
+    .nav-item:hover { background: var(--gris2); color: var(--blanco); }
+    .nav-item.activo { background: rgba(201, 168, 76, 0.1); color: var(--dorado); }
+ 
+    .sidebar-footer {
+      padding: 14px 10px;
+      border-top: 1px solid var(--gris3);
+    }
+ 
+    .btn-salir {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gris3);
+      border-radius: 9px;
+      padding: 9px;
+      color: var(--tenue);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+    }
+ 
+    .btn-salir:hover { border-color: var(--rojo); color: var(--rojo); }
+ 
+    /* Contenido principal */
+    .main {
+      margin-left: 230px;
+      min-height: 100vh;
+      padding: 36px;
+    }
+ 
+    /* Paneles */
+    .panel { display: none; }
+    .panel.activo { display: block; }
+ 
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 28px;
+      gap: 14px;
+    }
+ 
+    .panel-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 900;
+    }
+ 
+    .panel-header p {
+      font-size: 12px;
+      color: var(--tenue);
+      margin-top: 4px;
+    }
+ 
+    /* Botones primario y secundario */
+    .btn-primario {
+      background: var(--dorado);
+      border: none;
+      border-radius: 9px;
+      padding: 9px 18px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--negro);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+ 
+    .btn-primario:hover { opacity: 0.9; }
+ 
+    .btn-secundario {
+      background: transparent;
+      border: 1px solid var(--gris3);
+      border-radius: 9px;
+      padding: 9px 18px;
+      color: var(--tenue);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+    }
+ 
+    /* ─────────────────────────────────────────
+       GRID DE CAFETERÍAS
+    ───────────────────────────────────────── */
+    .cafeterias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 18px;
+    }
+ 
+    .cafe-card {
+      background: var(--gris1);
+      border: 1px solid var(--gris3);
+      border-radius: 14px;
+      padding: 22px;
+      transition: border-color 0.2s;
+    }
+ 
+    .cafe-card:hover { border-color: rgba(201, 168, 76, 0.28); }
+ 
+    .cafe-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+ 
+    .cafe-card-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+    }
+ 
+    .cafe-card-slug {
+      font-size: 11px;
+      color: var(--dorado);
+      margin-top: 3px;
+      font-family: monospace;
+    }
+ 
+    .cafe-card-acciones { display: flex; gap: 7px; }
+ 
+    .btn-icono {
+      background: var(--gris2);
+      border: none;
+      border-radius: 7px;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 13px;
+    }
+ 
+    .btn-icono:hover { background: var(--gris3); }
+    .btn-icono.peligro:hover { background: rgba(224, 82, 82, 0.15); }
+ 
+    .cafe-card-link {
+      background: var(--negro);
+      border: 1px solid var(--gris3);
+      border-radius: 8px;
+      padding: 9px 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+ 
+    .cafe-card-link code {
+      font-size: 10px;
+      color: var(--tenue);
+      font-family: monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+ 
+    .btn-copiar {
+      background: rgba(201, 168, 76, 0.12);
+      border: none;
+      border-radius: 6px;
+      padding: 4px 9px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--dorado);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+ 
+    .btn-copiar:hover { background: rgba(201, 168, 76, 0.22); }
+ 
+    .cafe-card-productos { font-size: 12px; color: var(--tenue); }
+    .cafe-card-productos strong { color: var(--blanco); }
+ 
+    /* ─────────────────────────────────────────
+       TABLA DE PEDIDOS
+    ───────────────────────────────────────── */
+    .filtros {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+ 
+    .filtro-select,
+    .filtro-fecha {
+      background: var(--gris1);
+      border: 1px solid var(--gris3);
+      border-radius: 8px;
+      padding: 8px 11px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+ 
+    .filtro-select:focus,
+    .filtro-fecha:focus { border-color: var(--dorado); }
+ 
+    .tabla-contenedor {
+      background: var(--gris1);
+      border: 1px solid var(--gris3);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+ 
+    table { width: 100%; border-collapse: collapse; }
+ 
+    thead { background: var(--gris2); border-bottom: 1px solid var(--gris3); }
+ 
+    th {
+      padding: 11px 15px;
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--tenue);
+    }
+ 
+    td {
+      padding: 13px 15px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(42, 42, 42, 0.5);
+      vertical-align: top;
+    }
+ 
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255, 255, 255, 0.015); }
+ 
+    .badge-cafe {
+      background: rgba(201, 168, 76, 0.1);
+      color: var(--dorado);
+      padding: 3px 9px;
+      border-radius: 18px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+ 
+    .celda-productos { font-size: 12px; line-height: 1.9; }
+    .celda-productos .linea-prod { color: var(--blanco); }
+    .celda-productos .linea-prod span { color: var(--dorado); font-weight: 600; }
+ 
+    .celda-notas  { font-size: 12px; color: var(--tenue); font-style: italic; max-width: 180px; }
+    .celda-fecha  { font-size: 11px; color: var(--tenue); white-space: nowrap; }
+ 
+    .tabla-vacia { text-align: center; padding: 50px 24px; color: var(--tenue); }
+    .tabla-vacia .icono { font-size: 36px; margin-bottom: 10px; }
+    .tabla-vacia p { font-size: 13px; }
+ 
+    /* ─────────────────────────────────────────
+       MODAL DE CAFETERÍA
+    ───────────────────────────────────────── */
+    .modal-fondo {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+ 
+    .modal-fondo.visible { display: flex; }
+ 
+    .modal {
+      background: var(--gris1);
+      border: 1px solid var(--gris3);
+      border-radius: 18px;
+      padding: 28px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+ 
+    .modal-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+ 
+    .btn-cerrar-modal {
+      background: none;
+      border: none;
+      color: var(--tenue);
+      font-size: 22px;
+      cursor: pointer;
+      line-height: 1;
+    }
+ 
+    .campo-form { margin-bottom: 18px; }
+ 
+    .campo-form label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--tenue);
+      margin-bottom: 7px;
+    }
+ 
+    .campo-form input {
+      width: 100%;
+      background: var(--negro);
+      border: 1px solid var(--gris3);
+      border-radius: 9px;
+      padding: 11px 13px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+    }
+ 
+    .campo-form input:focus { border-color: var(--dorado); }
+ 
+    .campo-form small {
+      display: block;
+      font-size: 11px;
+      color: var(--tenue);
+      margin-top: 5px;
+    }
+ 
+    /* Editor de productos del menú */
+    .editor-productos {
+      background: var(--negro);
+      border: 1px solid var(--gris3);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+ 
+    .editor-productos-header {
+      padding: 7px 11px;
+      background: var(--gris2);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--tenue);
+    }
+ 
+    .producto-fila {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 11px;
+      border-top: 1px solid var(--gris3);
+    }
+ 
+    .producto-fila input {
+      flex: 1;
+      background: var(--gris2);
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 7px 9px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      outline: none;
+    }
+ 
+    .producto-fila input:focus { border-color: rgba(201, 168, 76, 0.35); }
+ 
+    .btn-eliminar-prod {
+      background: none;
+      border: none;
+      color: var(--tenue);
+      cursor: pointer;
+      font-size: 15px;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+ 
+    .btn-eliminar-prod:hover { background: rgba(224, 82, 82, 0.12); color: var(--rojo); }
+ 
+    .btn-agregar-prod {
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 9px;
+      color: var(--dorado);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+    }
+ 
+    .btn-agregar-prod:hover { background: rgba(201, 168, 76, 0.07); }
+ 
+    .modal-acciones {
+      display: flex;
+      justify-content: flex-end;
+      gap: 9px;
+      margin-top: 24px;
+    }
+ 
+    /* ─────────────────────────────────────────
+       Spinner y Toast
+    ───────────────────────────────────────── */
+    .spinner-sm {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(201, 168, 76, 0.15);
+      border-top-color: var(--dorado);
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+      display: inline-block;
+    }
+ 
+    @keyframes girar { to { transform: rotate(360deg); } }
+ 
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 1000;
+      background: var(--gris2);
+      color: var(--blanco);
+      border: 1px solid var(--gris3);
+      border-radius: 9px;
+      padding: 11px 18px;
+      font-size: 13px;
+      transform: translateY(70px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+ 
+    .toast.visible        { transform: translateY(0); opacity: 1; }
+    .toast.tipo-ok  { border-color: var(--verde); }
+    .toast.tipo-err { border-color: var(--rojo); }
+ 
+    /* ─────────────────────────────────────────
+       Responsive
+    ───────────────────────────────────────── */
+    @media (max-width: 860px) {
+      .sidebar { display: none; }
+      .main    { margin-left: 0; padding: 22px 14px; }
+    }
   </style>
 </head>
 <body>
-
-<!-- LOGIN -->
-<div id="loginScreen">
-  <div class="login-logo">Panfi<span>trión</span></div>
-  <div class="login-sub">Panel de administración</div>
-  <div class="login-card">
-    <h2>Iniciar sesión</h2>
-    <div class="campo"><label>Usuario</label><input type="text" id="u" placeholder="admin" autocomplete="username" /></div>
-    <div class="campo"><label>Contraseña</label><input type="password" id="p" placeholder="••••••••" autocomplete="current-password" /></div>
-    <button class="btn-login" id="btnLogin">Entrar</button>
-    <div class="login-error" id="loginErr">Usuario o contraseña incorrectos</div>
-  </div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="dashboard">
-  <div class="sidebar">
-    <div class="sb-logo"><h1>Panfi<span>trión</span></h1><small>Admin</small></div>
-    <nav class="sb-nav">
-      <div class="nav-item on" id="navCaf">🏪 &nbsp;Cafeterías</div>
-      <div class="nav-item" id="navPed">📋 &nbsp;Pedidos</div>
-    </nav>
-    <div class="sb-footer"><button class="btn-logout" id="btnLogout">Cerrar sesión</button></div>
-  </div>
-
-  <div class="main">
-    <!-- CAFETERÍAS -->
-    <div class="panel on" id="panelCaf">
-      <div class="panel-hdr">
-        <div><h2>Cafeterías</h2><p>Gestiona los puntos de venta y sus menús</p></div>
-        <button class="btn-p" id="btnNueva">+ Nueva cafetería</button>
+ 
+  <!-- ─────────────────────────────────────────
+       LOGIN
+  ───────────────────────────────────────── -->
+  <div id="loginScreen">
+    <div class="login-logo">Panfi<span>trión</span></div>
+    <div class="login-sub">Panel de administración</div>
+    <div class="login-card">
+      <h2>Iniciar sesión</h2>
+      <div class="campo">
+        <label>Usuario</label>
+        <input type="text" id="inputUsuario" placeholder="admin" autocomplete="username" />
       </div>
-      <div class="cafe-grid" id="cafeGrid"><div style="color:var(--tenue);font-size:13px;padding:16px 0"><div class="spin"></div> Cargando…</div></div>
-    </div>
-
-    <!-- PEDIDOS -->
-    <div class="panel" id="panelPed">
-      <div class="panel-hdr"><div><h2>Pedidos</h2><p>Historial de todos los pedidos recibidos</p></div></div>
-      <div class="filtros">
-        <select class="sel" id="filtroCafe"><option value="">Todas las cafeterías</option></select>
-        <input type="date" class="inp-fecha" id="filtroFecha" />
-        <button class="btn-p" id="btnLimpiar" style="font-weight:500;font-size:12px;padding:8px 14px">Limpiar filtros</button>
+      <div class="campo">
+        <label>Contraseña</label>
+        <input type="password" id="inputPassword" placeholder="••••••••" autocomplete="current-password" />
       </div>
-      <div class="tabla-wrap">
-        <table>
-          <thead><tr><th>Fecha</th><th>Cafetería</th><th>Productos</th><th>Notas</th></tr></thead>
-          <tbody id="pedidosBody"><tr><td colspan="4"><div class="empty"><div class="ic">📋</div><p>Cargando…</p></div></td></tr></tbody>
-        </table>
-      </div>
+      <button class="btn-login" id="btnLogin">Entrar</button>
+      <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
     </div>
   </div>
-</div>
-
-<!-- MODAL CAFETERÍA -->
-<div class="modal-bg" id="modalCafe">
-  <div class="modal-box">
-    <div class="modal-title">
-      <span id="modalTitulo">Nueva cafetería</span>
-      <button class="btn-close" id="btnCloseModal">×</button>
-    </div>
-    <div class="fg"><label>Nombre de la cafetería</label><input type="text" id="fNombre" placeholder="Ej: Cafetería La Granja" /></div>
-    <div class="fg">
-      <label>Slug (URL)</label>
-      <input type="text" id="fSlug" placeholder="la-granja" />
-      <small>Solo minúsculas, números y guiones. Ej: <code style="color:var(--dorado)">la-granja</code></small>
-    </div>
-    <div class="fg">
-      <label>Menú de productos</label>
-      <div class="prods-editor">
-        <div class="prods-hdr"><span>Nombre del producto</span><span></span></div>
-        <div id="prodsFila"></div>
+ 
+  <!-- ─────────────────────────────────────────
+       DASHBOARD
+  ───────────────────────────────────────── -->
+  <div id="dashboard">
+ 
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <h1>Panfi<span>trión</span></h1>
+        <small>Admin</small>
       </div>
-      <button class="btn-add-prod" id="btnAddProd">+ Agregar producto</button>
+      <nav class="sidebar-nav">
+        <div class="nav-item activo" id="navCafeterias">🏪 &nbsp;Cafeterías</div>
+        <div class="nav-item" id="navPedidos">📋 &nbsp;Pedidos</div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-salir" id="btnSalir">Cerrar sesión</button>
+      </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn-s" id="btnCancelar">Cancelar</button>
-      <button class="btn-p" id="btnGuardar">Guardar cafetería</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- SDK primero, script principal después -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-  // ── SUPABASE ──
-  const SUPA_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
-  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
-  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-
-  // ── CREDENCIALES ADMIN ── (cambia esto antes de subir)
-  const AU = 'admin';
-  const AP = 'panfitron2024';
-
-  // Construye el BASE de forma robusta: quita admin.html del path sin importar slashes
-  const BASE = window.location.href.('/index.html');
-  let editId = null;
-
-  // ── LOGIN ──
-  function doLogin() {
-    const u = document.getElementById('u').value.trim();
-    const p = document.getElementById('p').value;
-    if (u === AU && p === AP) {
-      document.getElementById('loginErr').style.display = 'none';
-      sessionStorage.setItem('pf_auth','1');
-      abrirDashboard();
-    } else {
-      document.getElementById('loginErr').style.display = 'block';
-    }
-  }
-
-  function abrirDashboard() {
-    document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('dashboard').style.display = 'flex';
-    cargarCafeterias();
-    cargarSelectorCafes();
-  }
-
-  function checkAuth() {
-    if (sessionStorage.getItem('pf_auth') === '1') abrirDashboard();
-  }
-
-  // ── NAVEGACIÓN ──
-  function goPanel(id) {
-    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('on'));
-    document.getElementById('panel' + id).classList.add('on');
-    document.getElementById('nav' + id).classList.add('on');
-    if (id === 'Ped') cargarPedidos();
-  }
-
-  // ── CAFETERÍAS ──
-  async function cargarCafeterias() {
-    const g = document.getElementById('cafeGrid');
-    g.innerHTML = '<div style="color:var(--tenue);font-size:13px;padding:16px 0"><div class="spin"></div> Cargando…</div>';
-    const { data, error } = await sb.from('cafeterias').select('*').order('created_at',{ascending:false});
-    if (error) { g.innerHTML = '<div style="color:var(--rojo);font-size:13px">Error al cargar cafeterías</div>'; return; }
-    if (!data.length) { g.innerHTML = '<div style="color:var(--tenue);font-size:13px;padding:16px 0">Aún no hay cafeterías.</div>'; return; }
-    g.innerHTML = data.map(c => {
-      const link = BASE + '?cafe=' + c.slug;
-      const n = (c.menu||[]).length;
-      const cats = [...new Set((c.menu||[]).map(p=>p.categoria||'General'))].join(', ');
-      const nomEsc = c.nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      return `<div class="cafe-card">
-        <div class="cc-hdr">
-          <div><div class="cc-nombre">${c.nombre}</div><div class="cc-slug">?cafe=${c.slug}</div></div>
-          <div class="cc-btns">
-            <button class="btn-ico" onclick="editarCafe('${c.id}')">✏️</button>
-            <button class="btn-ico del" onclick="eliminarCafe('${c.id}','${nomEsc}')">🗑️</button>
+ 
+    <!-- Contenido -->
+    <div class="main">
+ 
+      <!-- Panel: Cafeterías -->
+      <div class="panel activo" id="panelCafeterias">
+        <div class="panel-header">
+          <div>
+            <h2>Cafeterías</h2>
+            <p>Gestiona los puntos de venta y sus menús</p>
+          </div>
+          <button class="btn-primario" id="btnNuevaCafeteria">+ Nueva cafetería</button>
+        </div>
+        <div class="cafeterias-grid" id="cafeteriasGrid">
+          <div style="color: var(--tenue); font-size: 13px; padding: 16px 0;">
+            <div class="spinner-sm"></div> Cargando…
           </div>
         </div>
-        <div class="cc-link"><code>${link}</code><button class="btn-copy" onclick="copiar('${link}',this)">Copiar</button></div>
-        <div class="cc-prods"><strong>${n}</strong> productos</div>
-      </div>`;
-    }).join('');
-  }
-
-  function copiar(url, btn) {
-    navigator.clipboard.writeText(url).then(()=>{ btn.textContent='✓ Copiado'; setTimeout(()=>btn.textContent='Copiar',2000); });
-  }
-
-  async function eliminarCafe(id, nombre) {
-    if (!confirm('¿Eliminar "'+nombre+'"? No se puede deshacer.')) return;
-    const {error} = await sb.from('cafeterias').delete().eq('id',id);
-    if (error) { toast('Error al eliminar','err'); return; }
-    toast('Cafetería eliminada','ok');
-    cargarCafeterias();
-  }
-
-  // ── MODAL ──
-  function abrirModal() {
-    editId = null;
-    document.getElementById('modalTitulo').textContent = 'Nueva cafetería';
-    document.getElementById('fNombre').value = '';
-    document.getElementById('fSlug').value = '';
-    document.getElementById('prodsFila').innerHTML = '';
-    addProdFila(); addProdFila();
-    document.getElementById('modalCafe').classList.add('show');
-    document.getElementById('fNombre').oninput = function() {
-      document.getElementById('fSlug').value = this.value.toLowerCase()
-        .normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    };
-  }
-
-  async function editarCafe(id) {
-    const {data,error} = await sb.from('cafeterias').select('*').eq('id',id).single();
-    if (error) { toast('Error al cargar','err'); return; }
-    editId = id;
-    document.getElementById('modalTitulo').textContent = 'Editar cafetería';
-    document.getElementById('fNombre').value = data.nombre;
-    document.getElementById('fSlug').value = data.slug;
-    document.getElementById('fNombre').oninput = null;
-    document.getElementById('prodsFila').innerHTML = '';
-    (data.menu||[]).forEach(p => addProdFila(p));
-    document.getElementById('modalCafe').classList.add('show');
-  }
-
-  function cerrarModal() {
-    document.getElementById('modalCafe').classList.remove('show');
-    editId = null;
-  }
-
-  function addProdFila(p) {
-    const uid = 'pf' + Date.now() + Math.random().toString(36).slice(2,6);
-    const d = document.createElement('div');
-    d.className = 'prod-fila'; d.id = uid;
-    d.innerHTML = `
-      <input type="text" placeholder="Nombre del producto" value="${p?p.nombre:''}" data-c="nombre" />
-
-      <button class="btn-del-prod" onclick="document.getElementById('${uid}').remove()">×</button>`;
-    document.getElementById('prodsFila').appendChild(d);
-  }
-
-  async function guardarCafe() {
-    const nombre = document.getElementById('fNombre').value.trim();
-    const slug = document.getElementById('fSlug').value.trim();
-    if (!nombre||!slug) { toast('Completa nombre y slug','err'); return; }
-    if (!/^[a-z0-9-]+$/.test(slug)) { toast('Slug inválido: solo minúsculas, números y guiones','err'); return; }
-    const menu = [];
-    document.querySelectorAll('#prodsFila .prod-fila').forEach(f => {
-      const nom = f.querySelector('[data-c="nombre"]').value.trim();
-      if (!nom) return;
-      menu.push({ id:'p'+Math.random().toString(36).slice(2,8), nombre:nom });
-    });
-    if (!menu.length) { toast('Agrega al menos un producto','err'); return; }
-    const payload = { nombre, slug, menu };
-    let error;
-    if (editId) { ({error}=await sb.from('cafeterias').update(payload).eq('id',editId)); }
-    else { ({error}=await sb.from('cafeterias').insert([{...payload,created_at:new Date().toISOString()}])); }
-    if (error) { toast(error.code==='23505'?'Ese slug ya existe':'Error al guardar','err'); return; }
-    cerrarModal();
-    toast(editId?'Cafetería actualizada':'Cafetería creada','ok');
-    cargarCafeterias(); cargarSelectorCafes();
-  }
-
-  // ── PEDIDOS ──
-  async function cargarSelectorCafes() {
-    const {data} = await sb.from('cafeterias').select('id,nombre').order('nombre');
-    const sel = document.getElementById('filtroCafe');
-    sel.innerHTML = '<option value="">Todas las cafeterías</option>';
-    (data||[]).forEach(c => sel.innerHTML += `<option value="${c.id}">${c.nombre}</option>`);
-  }
-
-  async function cargarPedidos() {
-    const body = document.getElementById('pedidosBody');
-    body.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="spin"></div></div></td></tr>';
-    let q = sb.from('pedidos').select('*').order('fecha',{ascending:false}).limit(200);
-    const cid = document.getElementById('filtroCafe').value;
-    const fecha = document.getElementById('filtroFecha').value;
-    if (cid) q = q.eq('cafeteria_id',cid);
-    if (fecha) q = q.gte('fecha',fecha+'T00:00:00').lte('fecha',fecha+'T23:59:59');
-    const {data,error} = await q;
-    if (error) { body.innerHTML = '<tr><td colspan="4"><div class="empty"><p style="color:var(--rojo)">Error al cargar pedidos</p></div></td></tr>'; return; }
-    if (!data.length) { body.innerHTML = '<tr><td colspan="4"><div class="empty"><div class="ic">📭</div><p>No hay pedidos con estos filtros</p></div></td></tr>'; return; }
-    body.innerHTML = data.map(p => {
-      const f = new Date(p.fecha).toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-      const prods = (p.productos||[]).map(pr=>`<div class="pi">${pr.nombre} <span>×${pr.cantidad}</span></div>`).join('');
-      return `<tr><td class="fecha-td">${f}</td><td><span class="badge">${p.cafeteria_nombre||'—'}</span></td><td class="prods-td">${prods||'—'}</td><td class="notas-td">${p.notas||'—'}</td></tr>`;
-    }).join('');
-  }
-
-  // ── TOAST ──
-  function toast(msg, tipo) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.className = 'toast show '+(tipo||'');
-    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'),3000);
-  }
-
-  // ── BIND EVENTOS ──
-  document.getElementById('btnLogin').addEventListener('click', doLogin);
-  document.getElementById('p').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
-  document.getElementById('btnLogout').addEventListener('click', () => {
-    sessionStorage.removeItem('pf_auth');
-    document.getElementById('dashboard').style.display = 'none';
-    document.getElementById('loginScreen').style.display = 'flex';
-  });
-  document.getElementById('navCaf').addEventListener('click', () => goPanel('Caf'));
-  document.getElementById('navPed').addEventListener('click', () => goPanel('Ped'));
-  document.getElementById('btnNueva').addEventListener('click', abrirModal);
-  document.getElementById('btnCloseModal').addEventListener('click', cerrarModal);
-  document.getElementById('btnCancelar').addEventListener('click', cerrarModal);
-  document.getElementById('btnGuardar').addEventListener('click', guardarCafe);
-  document.getElementById('btnAddProd').addEventListener('click', () => addProdFila());
-  document.getElementById('filtroCafe').addEventListener('change', cargarPedidos);
-  document.getElementById('filtroFecha').addEventListener('change', cargarPedidos);
-  document.getElementById('btnLimpiar').addEventListener('click', () => {
-    document.getElementById('filtroCafe').value = '';
-    document.getElementById('filtroFecha').value = '';
-    cargarPedidos();
-  });
-
-  // ── ARRANCAR ──
-  checkAuth();
-</script>
+      </div>
+ 
+      <!-- Panel: Pedidos -->
+      <div class="panel" id="panelPedidos">
+        <div class="panel-header">
+          <div>
+            <h2>Pedidos</h2>
+            <p>Historial de todos los pedidos recibidos</p>
+          </div>
+        </div>
+        <div class="filtros">
+          <select class="filtro-select" id="filtroCafeteria">
+            <option value="">Todas las cafeterías</option>
+          </select>
+          <input type="date" class="filtro-fecha" id="filtroFecha" />
+          <button class="btn-primario" id="btnLimpiarFiltros" style="font-weight: 500; font-size: 12px; padding: 8px 14px;">
+            Limpiar filtros
+          </button>
+        </div>
+        <div class="tabla-contenedor">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Cafetería</th>
+                <th>Productos</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPedidos">
+              <tr>
+                <td colspan="4">
+                  <div class="tabla-vacia">
+                    <div class="icono">📋</div>
+                    <p>Cargando…</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+ 
+    </div>
+  </div>
+ 
+  <!-- ─────────────────────────────────────────
+       MODAL DE CAFETERÍA
+  ───────────────────────────────────────── -->
+  <div class="modal-fondo" id="modalFondo">
+    <div class="modal">
+      <div class="modal-titulo">
+        <span id="modalTitulo">Nueva cafetería</span>
+        <button class="btn-cerrar-modal" id="btnCerrarModal">×</button>
+      </div>
+ 
+      <div class="campo-form">
+        <label>Nombre de la cafetería</label>
+        <input type="text" id="campoNombre" placeholder="Ej: Cafetería La Granja" />
+      </div>
+ 
+      <div class="campo-form">
+        <label>Slug (identificador en la URL)</label>
+        <input type="text" id="campoSlug" placeholder="la-granja" />
+        <small>
+          Solo minúsculas, números y guiones.
+          Ejemplo: <code style="color: var(--dorado)">la-granja</code>
+        </small>
+      </div>
+ 
+      <div class="campo-form">
+        <label>Productos del menú</label>
+        <div class="editor-productos">
+          <div class="editor-productos-header">Nombre del producto</div>
+          <div id="listaProductos"></div>
+        </div>
+        <button class="btn-agregar-prod" id="btnAgregarProducto">+ Agregar producto</button>
+      </div>
+ 
+      <div class="modal-acciones">
+        <button class="btn-secundario" id="btnCancelarModal">Cancelar</button>
+        <button class="btn-primario"   id="btnGuardarCafeteria">Guardar cafetería</button>
+      </div>
+    </div>
+  </div>
+ 
+  <!-- Toast de notificaciones -->
+  <div class="toast" id="toast"></div>
+ 
+  <!-- Supabase SDK (síncrono, debe ir antes del script principal) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+ 
+  <script>
+    // ─────────────────────────────────────────
+    // Configuración
+    // ─────────────────────────────────────────
+    const SUPABASE_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
+ 
+    // ⚠️ Cambia estas credenciales antes de publicar
+    const ADMIN_USUARIO   = 'admin';
+    const ADMIN_PASSWORD  = 'panfitron2024';
+ 
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+ 
+    // URL base para generar links a las cafeterías
+    // Reemplaza /admin.html por /index.html sin importar la ruta
+    const URL_BASE = window.location.href.replace(/\/admin\.html(\?.*)?$/, '/index.html');
+ 
+    // ID de la cafetería que se está editando (null = nueva)
+    let editandoId = null;
+ 
+    // ─────────────────────────────────────────
+    // Autenticación
+    // ─────────────────────────────────────────
+    function login() {
+      const usuario  = document.getElementById('inputUsuario').value.trim();
+      const password = document.getElementById('inputPassword').value;
+ 
+      if (usuario === ADMIN_USUARIO && password === ADMIN_PASSWORD) {
+        sessionStorage.setItem('admin_auth', '1');
+        document.getElementById('loginError').style.display = 'none';
+        mostrarDashboard();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+      }
+    }
+ 
+    function salir() {
+      sessionStorage.removeItem('admin_auth');
+      document.getElementById('dashboard').style.display    = 'none';
+      document.getElementById('loginScreen').style.display  = 'flex';
+    }
+ 
+    function verificarAuth() {
+      if (sessionStorage.getItem('admin_auth') === '1') mostrarDashboard();
+    }
+ 
+    function mostrarDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display   = 'flex';
+      cargarCafeterias();
+      cargarSelectorCafeterias();
+    }
+ 
+    // ─────────────────────────────────────────
+    // Navegación entre paneles
+    // ─────────────────────────────────────────
+    function irPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('activo'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('activo'));
+      document.getElementById('panel'    + id).classList.add('activo');
+      document.getElementById('nav'      + id).classList.add('activo');
+      if (id === 'Pedidos') cargarPedidos();
+    }
+ 
+    // ─────────────────────────────────────────
+    // Panel de cafeterías
+    // ─────────────────────────────────────────
+    async function cargarCafeterias() {
+      const grid = document.getElementById('cafeteriasGrid');
+      grid.innerHTML = '<div style="color: var(--tenue); font-size: 13px; padding: 16px 0;"><div class="spinner-sm"></div> Cargando…</div>';
+ 
+      const { data, error } = await db
+        .from('cafeterias')
+        .select('*')
+        .order('created_at', { ascending: false });
+ 
+      if (error) {
+        grid.innerHTML = '<div style="color: var(--rojo); font-size: 13px;">Error al cargar cafeterías.</div>';
+        return;
+      }
+ 
+      if (!data.length) {
+        grid.innerHTML = '<div style="color: var(--tenue); font-size: 13px; padding: 16px 0;">Aún no hay cafeterías. Crea la primera.</div>';
+        return;
+      }
+ 
+      grid.innerHTML = data.map(c => {
+        const link       = `${URL_BASE}?cafe=${c.slug}`;
+        const numProds   = (c.menu || []).length;
+        const nomSeguro  = c.nombre.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+ 
+        return `
+          <div class="cafe-card">
+            <div class="cafe-card-header">
+              <div>
+                <div class="cafe-card-nombre">${c.nombre}</div>
+                <div class="cafe-card-slug">?cafe=${c.slug}</div>
+              </div>
+              <div class="cafe-card-acciones">
+                <button class="btn-icono"         onclick="abrirEdicion('${c.id}')">✏️</button>
+                <button class="btn-icono peligro" onclick="eliminarCafeteria('${c.id}', '${nomSeguro}')">🗑️</button>
+              </div>
+            </div>
+            <div class="cafe-card-link">
+              <code>${link}</code>
+              <button class="btn-copiar" onclick="copiarLink('${link}', this)">Copiar</button>
+            </div>
+            <div class="cafe-card-productos">
+              <strong>${numProds}</strong> ${numProds === 1 ? 'producto' : 'productos'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+ 
+    function copiarLink(url, btn) {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.textContent = '✓ Copiado';
+        setTimeout(() => btn.textContent = 'Copiar', 2000);
+      });
+    }
+ 
+    async function eliminarCafeteria(id, nombre) {
+      if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
+ 
+      const { error } = await db.from('cafeterias').delete().eq('id', id);
+ 
+      if (error) { mostrarToast('Error al eliminar', 'err'); return; }
+ 
+      mostrarToast('Cafetería eliminada', 'ok');
+      cargarCafeterias();
+    }
+ 
+    // ─────────────────────────────────────────
+    // Modal: crear / editar cafetería
+    // ─────────────────────────────────────────
+    function abrirCreacion() {
+      editandoId = null;
+      document.getElementById('modalTitulo').textContent = 'Nueva cafetería';
+      document.getElementById('campoNombre').value       = '';
+      document.getElementById('campoSlug').value         = '';
+      document.getElementById('listaProductos').innerHTML = '';
+ 
+      // Arrancar con dos filas vacías
+      agregarFilaProducto();
+      agregarFilaProducto();
+ 
+      // Auto-generar slug al escribir el nombre
+      document.getElementById('campoNombre').oninput = function () {
+        document.getElementById('campoSlug').value = this.value
+          .toLowerCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+      };
+ 
+      document.getElementById('modalFondo').classList.add('visible');
+    }
+ 
+    async function abrirEdicion(id) {
+      const { data, error } = await db.from('cafeterias').select('*').eq('id', id).single();
+      if (error) { mostrarToast('Error al cargar la cafetería', 'err'); return; }
+ 
+      editandoId = id;
+      document.getElementById('modalTitulo').textContent  = 'Editar cafetería';
+      document.getElementById('campoNombre').value        = data.nombre;
+      document.getElementById('campoSlug').value          = data.slug;
+      document.getElementById('campoNombre').oninput      = null;
+      document.getElementById('listaProductos').innerHTML  = '';
+ 
+      (data.menu || []).forEach(p => agregarFilaProducto(p));
+ 
+      document.getElementById('modalFondo').classList.add('visible');
+    }
+ 
+    function cerrarModal() {
+      document.getElementById('modalFondo').classList.remove('visible');
+      editandoId = null;
+    }
+ 
+    function agregarFilaProducto(producto = null) {
+      const id  = 'fila-' + Date.now() + Math.random().toString(36).slice(2, 6);
+      const div = document.createElement('div');
+      div.className = 'producto-fila';
+      div.id        = id;
+      div.innerHTML = `
+        <input
+          type="text"
+          placeholder="Nombre del producto"
+          value="${producto ? producto.nombre : ''}"
+          data-campo="nombre"
+        />
+        <button class="btn-eliminar-prod" onclick="document.getElementById('${id}').remove()">×</button>
+      `;
+      document.getElementById('listaProductos').appendChild(div);
+    }
+ 
+    async function guardarCafeteria() {
+      const nombre = document.getElementById('campoNombre').value.trim();
+      const slug   = document.getElementById('campoSlug').value.trim();
+ 
+      if (!nombre || !slug) {
+        mostrarToast('Completa el nombre y el slug', 'err');
+        return;
+      }
+ 
+      if (!/^[a-z0-9-]+$/.test(slug)) {
+        mostrarToast('Slug inválido: solo minúsculas, números y guiones', 'err');
+        return;
+      }
+ 
+      // Leer productos del editor
+      const menu = [];
+      document.querySelectorAll('#listaProductos .producto-fila').forEach(fila => {
+        const nombre = fila.querySelector('[data-campo="nombre"]').value.trim();
+        if (!nombre) return;
+        menu.push({
+          id:     'p' + Math.random().toString(36).slice(2, 8),
+          nombre,
+        });
+      });
+ 
+      if (!menu.length) {
+        mostrarToast('Agrega al menos un producto', 'err');
+        return;
+      }
+ 
+      const datos = { nombre, slug, menu };
+      let error;
+ 
+      if (editandoId) {
+        ({ error } = await db.from('cafeterias').update(datos).eq('id', editandoId));
+      } else {
+        ({ error } = await db.from('cafeterias').insert([{ ...datos, created_at: new Date().toISOString() }]));
+      }
+ 
+      if (error) {
+        mostrarToast(error.code === '23505' ? 'Ese slug ya está en uso' : 'Error al guardar', 'err');
+        return;
+      }
+ 
+      cerrarModal();
+      mostrarToast(editandoId ? 'Cafetería actualizada' : 'Cafetería creada', 'ok');
+      cargarCafeterias();
+      cargarSelectorCafeterias();
+    }
+ 
+    // ─────────────────────────────────────────
+    // Panel de pedidos
+    // ─────────────────────────────────────────
+    async function cargarSelectorCafeterias() {
+      const { data } = await db.from('cafeterias').select('id, nombre').order('nombre');
+      const sel = document.getElementById('filtroCafeteria');
+      sel.innerHTML = '<option value="">Todas las cafeterías</option>';
+      (data || []).forEach(c => {
+        sel.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+      });
+    }
+ 
+    async function cargarPedidos() {
+      const tbody = document.getElementById('tablaPedidos');
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4">
+            <div class="tabla-vacia"><div class="spinner-sm"></div></div>
+          </td>
+        </tr>
+      `;
+ 
+      let query = db
+        .from('pedidos')
+        .select('*')
+        .order('fecha', { ascending: false })
+        .limit(200);
+ 
+      const cafeteriaId = document.getElementById('filtroCafeteria').value;
+      const fecha       = document.getElementById('filtroFecha').value;
+ 
+      if (cafeteriaId) query = query.eq('cafeteria_id', cafeteriaId);
+      if (fecha)       query = query.gte('fecha', `${fecha}T00:00:00`).lte('fecha', `${fecha}T23:59:59`);
+ 
+      const { data, error } = await query;
+ 
+      if (error) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4">
+              <div class="tabla-vacia"><p style="color: var(--rojo);">Error al cargar pedidos.</p></div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+ 
+      if (!data.length) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4">
+              <div class="tabla-vacia">
+                <div class="icono">📭</div>
+                <p>No hay pedidos con estos filtros.</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+ 
+      tbody.innerHTML = data.map(pedido => {
+        const fecha = new Date(pedido.fecha).toLocaleDateString('es-MX', {
+          day: '2-digit', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+        });
+ 
+        const productos = (pedido.productos || [])
+          .map(p => `<div class="linea-prod">${p.nombre} <span>×${p.cantidad}</span></div>`)
+          .join('');
+ 
+        return `
+          <tr>
+            <td class="celda-fecha">${fecha}</td>
+            <td><span class="badge-cafe">${pedido.cafeteria_nombre || '—'}</span></td>
+            <td class="celda-productos">${productos || '—'}</td>
+            <td class="celda-notas">${pedido.notas || '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+ 
+    // ─────────────────────────────────────────
+    // Utilidades
+    // ─────────────────────────────────────────
+    function mostrarToast(mensaje, tipo = '') {
+      const el = document.getElementById('toast');
+      el.textContent = mensaje;
+      el.className   = `toast visible tipo-${tipo}`;
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.remove('visible'), 3000);
+    }
+ 
+    // ─────────────────────────────────────────
+    // Eventos
+    // ─────────────────────────────────────────
+    document.getElementById('btnLogin')
+      .addEventListener('click', login);
+ 
+    document.getElementById('inputPassword')
+      .addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+ 
+    document.getElementById('btnSalir')
+      .addEventListener('click', salir);
+ 
+    document.getElementById('navCafeterias')
+      .addEventListener('click', () => irPanel('Cafeterias'));
+ 
+    document.getElementById('navPedidos')
+      .addEventListener('click', () => irPanel('Pedidos'));
+ 
+    document.getElementById('btnNuevaCafeteria')
+      .addEventListener('click', abrirCreacion);
+ 
+    document.getElementById('btnCerrarModal')
+      .addEventListener('click', cerrarModal);
+ 
+    document.getElementById('btnCancelarModal')
+      .addEventListener('click', cerrarModal);
+ 
+    document.getElementById('btnGuardarCafeteria')
+      .addEventListener('click', guardarCafeteria);
+ 
+    document.getElementById('btnAgregarProducto')
+      .addEventListener('click', () => agregarFilaProducto());
+ 
+    document.getElementById('filtroCafeteria')
+      .addEventListener('change', cargarPedidos);
+ 
+    document.getElementById('filtroFecha')
+      .addEventListener('change', cargarPedidos);
+ 
+    document.getElementById('btnLimpiarFiltros')
+      .addEventListener('click', () => {
+        document.getElementById('filtroCafeteria').value = '';
+        document.getElementById('filtroFecha').value     = '';
+        cargarPedidos();
+      });
+ 
+    // ─────────────────────────────────────────
+    // Iniciar
+    // ─────────────────────────────────────────
+    verificarAuth();
+  </script>
 </body>
 </html>
+ 
