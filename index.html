@@ -641,7 +641,7 @@
     // ⚠️ Reemplaza con tus credenciales reales de Supabase
     const SUPABASE_URL = 'TU_SUPABASE_URL';
     const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
-    let supabase;
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // ── ESTADO ──
     let cafeteriaActual = null;
@@ -650,11 +650,6 @@
     let tecladoProductoActual = null;
     let valorTeclado = '';
     let pedidoGuardado = null;
-
-    document.addEventListener('DOMContentLoaded', () => {
-      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      init();
-    });
 
     // ── INICIALIZAR ──
     async function init() {
@@ -960,6 +955,9 @@
         </div>
       `;
     }
+
+    // ── INICIAR ──
+    init();
 
   </script>
 </body>
