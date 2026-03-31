@@ -772,6 +772,16 @@
         <button class="btn-agregar-prod" id="btnAgregarProducto">+ Agregar producto</button>
       </div>
 
+
+      <div class="campo-form">
+        <label>Sucursales <span style="color:var(--tenue);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+        <div class="sucursales-editor">
+          <div class="sucursales-editor-header">Nombre de sucursal</div>
+          <div id="listaSucursales"></div>
+        </div>
+        <button class="btn-agregar-suc" id="btnAgregarSucursal">+ Agregar sucursal</button>
+      </div>
+
       <div class="modal-acciones">
         <button class="btn-secundario" id="btnCancelarModal">Cancelar</button>
         <button class="btn-primario"   id="btnGuardarCafeteria">Guardar cafetería</button>
@@ -878,6 +888,7 @@
       grid.innerHTML = data.map(c => {
         const link       = `${URL_BASE}?cafe=${c.slug}`;
         const numProds   = (c.menu || []).length;
+        const numSucs    = (c.sucursales || []).length;
         const nomSeguro  = c.nombre.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
         return `
@@ -898,6 +909,7 @@
             </div>
             <div class="cafe-card-productos">
               <strong>${numProds}</strong> ${numProds === 1 ? 'producto' : 'productos'}
+              ${numSucs ? ` · <strong>${numSucs}</strong> sucursales` : ''}
             </div>
           </div>
         `;
@@ -931,6 +943,7 @@
       document.getElementById('campoNombre').value       = '';
       document.getElementById('campoSlug').value         = '';
       document.getElementById('listaProductos').innerHTML = '';
+      document.getElementById('listaSucursales').innerHTML = '';
 
       // Arrancar con dos filas vacías
       agregarFilaProducto();
@@ -958,6 +971,8 @@
       document.getElementById('campoSlug').value          = data.slug;
       document.getElementById('campoNombre').oninput      = null;
       document.getElementById('listaProductos').innerHTML  = '';
+      document.getElementById('listaSucursales').innerHTML = '';
+      (data.sucursales || []).forEach(s => agregarFilaSucursal(s));
 
       (data.menu || []).forEach(p => agregarFilaProducto(p));
 
@@ -984,6 +999,20 @@
         <button class="btn-eliminar-prod" onclick="document.getElementById('${id}').remove()">×</button>
       `;
       document.getElementById('listaProductos').appendChild(div);
+    }
+
+
+    function agregarFilaSucursal(nombre) {
+      const uid = 'suc-' + Date.now() + Math.random().toString(36).slice(2, 6);
+      const div = document.createElement('div');
+      div.className = 'sucursal-fila';
+      div.id        = uid;
+      div.innerHTML = `
+        <input type="text" placeholder="Ej: Planta 1, Oficina Norte…"
+          value="${nombre || ''}" data-campo="sucursal" />
+        <button class="btn-eliminar-prod" onclick="document.getElementById('${uid}').remove()">×</button>
+      `;
+      document.getElementById('listaSucursales').appendChild(div);
     }
 
     async function guardarCafeteria() {
@@ -1016,7 +1045,14 @@
         return;
       }
 
-      const datos = { nombre, slug, menu };
+      // Leer sucursales
+      const sucursales = [];
+      document.querySelectorAll('#listaSucursales .sucursal-fila').forEach(fila => {
+        const nom = fila.querySelector('[data-campo="sucursal"]').value.trim();
+        if (nom) sucursales.push(nom);
+      });
+
+      const datos = { nombre, slug, menu, sucursales };
       let error;
 
       if (editandoId) {
@@ -1161,6 +1197,9 @@
 
     document.getElementById('btnAgregarProducto')
       .addEventListener('click', () => agregarFilaProducto());
+
+    document.getElementById('btnAgregarSucursal')
+      .addEventListener('click', () => agregarFilaSucursal());
 
     document.getElementById('filtroCafeteria')
       .addEventListener('change', cargarPedidos);
