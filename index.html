@@ -1,0 +1,965 @@
+# codin<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Panfitrión — Pedidos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --negro: #0a0a0a;
+      --dorado: #c9a84c;
+      --dorado-claro: #e8c97a;
+      --dorado-oscuro: #9a7a2e;
+      --blanco: #f5f2eb;
+      --blanco-puro: #ffffff;
+      --gris: #1e1e1e;
+      --gris-medio: #2e2e2e;
+      --texto-claro: #b0a88a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background-color: var(--negro);
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: var(--negro);
+      border-bottom: 1px solid rgba(201,168,76,0.2);
+      padding: 20px 24px 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .logo-mark {
+      width: 36px;
+      height: 36px;
+      border: 1.5px solid var(--dorado);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-mark img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .logo-mark .logo-fallback {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--dorado);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blanco);
+      letter-spacing: 0.02em;
+    }
+
+    .logo-text span {
+      color: var(--dorado);
+    }
+
+    .cafe-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--blanco-puro);
+      line-height: 1.1;
+    }
+
+    .cafe-subtitulo {
+      font-size: 12px;
+      color: var(--texto-claro);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ── LOADING / ERROR ── */
+    .pantalla-estado {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 16px;
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 2px solid rgba(201,168,76,0.2);
+      border-top-color: var(--dorado);
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+    }
+
+    @keyframes girar { to { transform: rotate(360deg); } }
+
+    .pantalla-estado p {
+      color: var(--texto-claro);
+      font-size: 15px;
+    }
+
+    /* ── CATEGORÍAS NAV ── */
+    .categorias-nav {
+      display: flex;
+      gap: 8px;
+      padding: 12px 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .categorias-nav::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid rgba(201,168,76,0.3);
+      color: var(--texto-claro);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .cat-pill.activa {
+      background: var(--dorado);
+      border-color: var(--dorado);
+      color: var(--negro);
+      font-weight: 600;
+    }
+
+    /* ── SECCIÓN DE PRODUCTOS ── */
+    .seccion {
+      padding: 0 24px;
+    }
+
+    .seccion-titulo {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dorado);
+      padding: 20px 0 10px;
+      border-bottom: 1px solid rgba(201,168,76,0.15);
+      margin-bottom: 4px;
+    }
+
+    /* ── TARJETA DE PRODUCTO ── */
+    .producto {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      gap: 16px;
+    }
+
+    .producto:last-child { border-bottom: none; }
+
+    .producto-info { flex: 1; }
+
+    .producto-nombre {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--blanco);
+      line-height: 1.3;
+    }
+
+    .producto-precio {
+      font-size: 12px;
+      color: var(--texto-claro);
+      margin-top: 2px;
+    }
+
+    /* ── CONTROL DE CANTIDAD ── */
+    .cantidad-control {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      background: var(--gris);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(201,168,76,0.15);
+      flex-shrink: 0;
+    }
+
+    .btn-cant {
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: none;
+      color: var(--dorado);
+      font-size: 20px;
+      font-weight: 300;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      user-select: none;
+    }
+
+    .btn-cant:active { background: rgba(201,168,76,0.15); }
+
+    .cant-display {
+      min-width: 32px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .cant-display.activo { color: var(--dorado); }
+
+    /* ── TECLADO NUMÉRICO MODAL ── */
+    .teclado-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      display: none;
+      align-items: flex-end;
+    }
+
+    .teclado-overlay.visible { display: flex; }
+
+    .teclado-panel {
+      width: 100%;
+      background: var(--gris);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 20px 36px;
+      animation: subir 0.25s ease;
+    }
+
+    @keyframes subir { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+    .teclado-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .teclado-producto-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--blanco);
+    }
+
+    .teclado-display {
+      background: var(--negro);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--dorado);
+      font-family: 'Playfair Display', serif;
+      margin-bottom: 16px;
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: -1px;
+    }
+
+    .teclado-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .tecla {
+      background: var(--gris-medio);
+      border: none;
+      border-radius: 12px;
+      height: 58px;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--blanco);
+      cursor: pointer;
+      transition: all 0.1s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .tecla:active { background: rgba(201,168,76,0.25); transform: scale(0.96); }
+
+    .tecla.borrar {
+      color: var(--texto-claro);
+      font-size: 18px;
+    }
+
+    .tecla.confirmar {
+      background: var(--dorado);
+      color: var(--negro);
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .tecla.confirmar:active { background: var(--dorado-oscuro); }
+
+    .btn-cerrar-teclado {
+      background: none;
+      border: none;
+      color: var(--texto-claro);
+      font-size: 26px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    /* ── NOTAS ── */
+    .notas-seccion {
+      padding: 20px 24px;
+    }
+
+    .notas-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dorado);
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .notas-input {
+      width: 100%;
+      background: var(--gris);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 12px;
+      padding: 14px 16px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      resize: none;
+      outline: none;
+      min-height: 80px;
+    }
+
+    .notas-input::placeholder { color: rgba(176,168,138,0.5); }
+    .notas-input:focus { border-color: rgba(201,168,76,0.5); }
+
+    /* ── RESUMEN FLOTANTE ── */
+    .resumen-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--gris);
+      border-top: 1px solid rgba(201,168,76,0.25);
+      padding: 12px 24px 28px;
+      z-index: 150;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+
+    .resumen-bar.visible { transform: translateY(0); }
+
+    .resumen-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .resumen-texto {
+      font-size: 13px;
+      color: var(--texto-claro);
+    }
+
+    .resumen-count {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--dorado);
+    }
+
+    .btn-enviar {
+      width: 100%;
+      background: var(--dorado);
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--negro);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-enviar:active { background: var(--dorado-oscuro); transform: scale(0.98); }
+    .btn-enviar:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ── ESPACIO INFERIOR para que no tape el resumen-bar ── */
+    .espacio-inferior { height: 120px; }
+
+    /* ── MODAL ÉXITO ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.visible { display: flex; }
+
+    .modal-card {
+      background: var(--gris);
+      border-radius: 20px;
+      padding: 32px 28px;
+      text-align: center;
+      border: 1px solid rgba(201,168,76,0.3);
+      max-width: 360px;
+      width: 100%;
+      animation: aparecer 0.3s ease;
+    }
+
+    @keyframes aparecer { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .modal-icono {
+      font-size: 52px;
+      margin-bottom: 16px;
+    }
+
+    .modal-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--blanco);
+      margin-bottom: 8px;
+    }
+
+    .modal-texto {
+      font-size: 14px;
+      color: var(--texto-claro);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .btn-compartir {
+      width: 100%;
+      background: #25D366;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-compartir:active { opacity: 0.85; }
+
+    .btn-nuevo-pedido {
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 14px;
+      padding: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--texto-claro);
+      cursor: pointer;
+    }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--gris-medio);
+      color: var(--blanco);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      z-index: 500;
+      transition: transform 0.3s ease;
+      border: 1px solid rgba(201,168,76,0.2);
+      white-space: nowrap;
+      max-width: 90vw;
+    }
+
+    .toast.visible { transform: translateX(-50%) translateY(0); }
+
+    /* ── PANTALLA CAFÉ NO ENCONTRADO ── */
+    .not-found {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      padding: 40px 24px;
+      text-align: center;
+      gap: 12px;
+    }
+
+    .not-found-icon { font-size: 48px; margin-bottom: 8px; }
+
+    .not-found h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: var(--blanco);
+    }
+
+    .not-found p { font-size: 14px; color: var(--texto-claro); line-height: 1.6; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">
+      <div class="logo-mark">
+        <img id="logoImg" src="" alt="Panfitrión" />
+        <span class="logo-fallback" id="logoFallback">P</span>
+      </div>
+      <span class="logo-text">Panfi<span>trión</span></span>
+    </div>
+    <div class="cafe-nombre" id="cafeNombre">Cargando...</div>
+    <div class="cafe-subtitulo" id="cafeSubtitulo">Haz tu pedido del día</div>
+  </div>
+
+  <!-- CONTENIDO PRINCIPAL -->
+  <div id="contenidoPrincipal">
+    <div class="pantalla-estado" id="estadoCargando">
+      <div class="spinner"></div>
+      <p>Cargando menú...</p>
+    </div>
+  </div>
+
+  <!-- ESPACIO INFERIOR -->
+  <div class="espacio-inferior"></div>
+
+  <!-- BARRA INFERIOR CON BOTÓN ENVIAR -->
+  <div class="resumen-bar" id="resumenBar">
+    <div class="resumen-info">
+      <span class="resumen-texto">Tu pedido</span>
+      <span class="resumen-count" id="resumenCount">0 productos</span>
+    </div>
+    <button class="btn-enviar" id="btnEnviar" onclick="enviarPedido()">
+      Enviar pedido
+    </button>
+  </div>
+
+  <!-- TECLADO NUMÉRICO -->
+  <div class="teclado-overlay" id="tecladoOverlay" onclick="cerrarTeclado(event)">
+    <div class="teclado-panel">
+      <div class="teclado-header">
+        <span class="teclado-producto-nombre" id="tecladoNombreProducto">Producto</span>
+        <button class="btn-cerrar-teclado" onclick="cerrarTeclado()">×</button>
+      </div>
+      <div class="teclado-display" id="tecladoDisplay">0</div>
+      <div class="teclado-grid">
+        <button class="tecla" onclick="teclaPress('7')">7</button>
+        <button class="tecla" onclick="teclaPress('8')">8</button>
+        <button class="tecla" onclick="teclaPress('9')">9</button>
+        <button class="tecla" onclick="teclaPress('4')">4</button>
+        <button class="tecla" onclick="teclaPress('5')">5</button>
+        <button class="tecla" onclick="teclaPress('6')">6</button>
+        <button class="tecla" onclick="teclaPress('1')">1</button>
+        <button class="tecla" onclick="teclaPress('2')">2</button>
+        <button class="tecla" onclick="teclaPress('3')">3</button>
+        <button class="tecla borrar" onclick="teclaPress('borrar')">⌫</button>
+        <button class="tecla" onclick="teclaPress('0')">0</button>
+        <button class="tecla confirmar" onclick="teclaPress('ok')">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ÉXITO -->
+  <div class="modal-overlay" id="modalExito">
+    <div class="modal-card">
+      <div class="modal-icono">✅</div>
+      <div class="modal-titulo">¡Pedido registrado!</div>
+      <div class="modal-texto" id="modalTexto">Tu pedido ha sido guardado. Compártelo por WhatsApp para confirmarlo.</div>
+      <button class="btn-compartir" id="btnCompartirWA">
+        <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Compartir por WhatsApp
+      </button>
+      <button class="btn-nuevo-pedido" onclick="nuevoPedido()">Hacer otro pedido</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── CONFIGURACIÓN SUPABASE ──
+    // ⚠️ Reemplaza con tus credenciales reales de Supabase
+    const SUPABASE_URL = '  https://wttdrnftxmdqnfauhkkp.supabase.cohttps://wttdrnftxmdqnfauhkkp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ── ESTADO ──
+    let cafeteriaActual = null;
+    let productosMenu = [];
+    let cantidades = {};
+    let tecladoProductoActual = null;
+    let valorTeclado = '';
+    let pedidoGuardado = null;
+
+    // ── INICIALIZAR ──
+    async function init() {
+      const params = new URLSearchParams(window.location.search);
+      const slug = params.get('cafe');
+
+      if (!slug) {
+        mostrarNotFound('No se especificó ninguna cafetería.');
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('cafeterias')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error || !data) {
+          mostrarNotFound(`No se encontró la cafetería "${slug}".`);
+          return;
+        }
+
+        cafeteriaActual = data;
+        productosMenu = data.menu || [];
+        cantidades = {};
+        productosMenu.forEach(p => cantidades[p.id] = 0);
+
+        document.getElementById('cafeNombre').textContent = data.nombre;
+        document.getElementById('cafeSubtitulo').textContent = 'Haz tu pedido del día';
+        document.title = `${data.nombre} — Panfitrión`;
+
+        renderizarMenu();
+      } catch (e) {
+        mostrarNotFound('Error al cargar el menú. Intenta de nuevo.');
+        console.error(e);
+      }
+    }
+
+    // ── RENDERIZAR MENÚ ──
+    function renderizarMenu() {
+      const contenedor = document.getElementById('contenidoPrincipal');
+      contenedor.innerHTML = '';
+
+      // Agrupar por categoría
+      const categorias = {};
+      productosMenu.forEach(p => {
+        const cat = p.categoria || 'General';
+        if (!categorias[cat]) categorias[cat] = [];
+        categorias[cat].push(p);
+      });
+
+      const cats = Object.keys(categorias);
+
+      // Navegación de categorías si hay más de una
+      if (cats.length > 1) {
+        const nav = document.createElement('div');
+        nav.className = 'categorias-nav';
+        cats.forEach((cat, i) => {
+          const pill = document.createElement('button');
+          pill.className = 'cat-pill' + (i === 0 ? ' activa' : '');
+          pill.textContent = cat;
+          pill.onclick = () => {
+            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('activa'));
+            pill.classList.add('activa');
+            document.getElementById('sec-' + cat)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          };
+          nav.appendChild(pill);
+        });
+        contenedor.appendChild(nav);
+      }
+
+      // Secciones por categoría
+      cats.forEach(cat => {
+        const sec = document.createElement('div');
+        sec.className = 'seccion';
+        sec.id = 'sec-' + cat;
+
+        const titulo = document.createElement('div');
+        titulo.className = 'seccion-titulo';
+        titulo.textContent = cat;
+        sec.appendChild(titulo);
+
+        categorias[cat].forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'producto';
+          div.innerHTML = `
+            <div class="producto-info">
+              <div class="producto-nombre">${p.nombre}</div>
+              ${p.precio ? `<div class="producto-precio">$${p.precio}</div>` : ''}
+            </div>
+            <div class="cantidad-control">
+              <button class="btn-cant" onclick="decrementar('${p.id}')">−</button>
+              <div class="cant-display" id="cant-${p.id}" onclick="abrirTeclado('${p.id}', '${p.nombre}')">0</div>
+              <button class="btn-cant" onclick="incrementar('${p.id}')">+</button>
+            </div>
+          `;
+          sec.appendChild(div);
+        });
+
+        contenedor.appendChild(sec);
+      });
+
+      // Campo de notas
+      const notasSec = document.createElement('div');
+      notasSec.className = 'notas-seccion';
+      notasSec.innerHTML = `
+        <label class="notas-label" for="notasInput">Notas</label>
+        <textarea class="notas-input" id="notasInput" placeholder="Alergias, preferencias, indicaciones especiales..."></textarea>
+      `;
+      contenedor.appendChild(notasSec);
+    }
+
+    // ── CONTROLES DE CANTIDAD ──
+    function incrementar(id) {
+      cantidades[id] = Math.min((cantidades[id] || 0) + 1, 99);
+      actualizarDisplay(id);
+    }
+
+    function decrementar(id) {
+      cantidades[id] = Math.max((cantidades[id] || 0) - 1, 0);
+      actualizarDisplay(id);
+    }
+
+    function actualizarDisplay(id) {
+      const el = document.getElementById('cant-' + id);
+      if (!el) return;
+      const val = cantidades[id] || 0;
+      el.textContent = val;
+      el.classList.toggle('activo', val > 0);
+      actualizarResumen();
+    }
+
+    function actualizarResumen() {
+      const total = Object.values(cantidades).reduce((a, b) => a + b, 0);
+      const bar = document.getElementById('resumenBar');
+      const count = document.getElementById('resumenCount');
+
+      if (total > 0) {
+        bar.classList.add('visible');
+        count.textContent = `${total} ${total === 1 ? 'producto' : 'productos'}`;
+      } else {
+        bar.classList.remove('visible');
+      }
+    }
+
+    // ── TECLADO NUMÉRICO ──
+    function abrirTeclado(id, nombre) {
+      tecladoProductoActual = id;
+      valorTeclado = cantidades[id] > 0 ? String(cantidades[id]) : '';
+      document.getElementById('tecladoNombreProducto').textContent = nombre;
+      document.getElementById('tecladoDisplay').textContent = valorTeclado || '0';
+      document.getElementById('tecladoOverlay').classList.add('visible');
+    }
+
+    function cerrarTeclado(e) {
+      if (e && e.target !== document.getElementById('tecladoOverlay')) return;
+      document.getElementById('tecladoOverlay').classList.remove('visible');
+      tecladoProductoActual = null;
+      valorTeclado = '';
+    }
+
+    function teclaPress(val) {
+      if (!tecladoProductoActual && val !== 'ok') return;
+
+      if (val === 'borrar') {
+        valorTeclado = valorTeclado.slice(0, -1);
+      } else if (val === 'ok') {
+        if (tecladoProductoActual) {
+          cantidades[tecladoProductoActual] = parseInt(valorTeclado) || 0;
+          actualizarDisplay(tecladoProductoActual);
+        }
+        document.getElementById('tecladoOverlay').classList.remove('visible');
+        tecladoProductoActual = null;
+        valorTeclado = '';
+        return;
+      } else {
+        if (valorTeclado.length >= 2) return; // máx 99
+        valorTeclado += val;
+        if (valorTeclado.startsWith('0') && valorTeclado.length > 1) {
+          valorTeclado = valorTeclado.slice(1);
+        }
+      }
+
+      document.getElementById('tecladoDisplay').textContent = valorTeclado || '0';
+    }
+
+    // ── ENVIAR PEDIDO ──
+    async function enviarPedido() {
+      const total = Object.values(cantidades).reduce((a, b) => a + b, 0);
+      if (total === 0) {
+        mostrarToast('Agrega al menos un producto');
+        return;
+      }
+
+      const btn = document.getElementById('btnEnviar');
+      btn.disabled = true;
+      btn.textContent = 'Guardando...';
+
+      const productosSeleccionados = productosMenu
+        .filter(p => (cantidades[p.id] || 0) > 0)
+        .map(p => ({ id: p.id, nombre: p.nombre, cantidad: cantidades[p.id], precio: p.precio || null }));
+
+      const notas = document.getElementById('notasInput')?.value || '';
+
+      try {
+        const { data, error } = await supabase
+          .from('pedidos')
+          .insert([{
+            cafeteria_id: cafeteriaActual.id,
+            cafeteria_nombre: cafeteriaActual.nombre,
+            productos: productosSeleccionados,
+            notas: notas,
+            fecha: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        pedidoGuardado = { ...data, productosSeleccionados, notas };
+        mostrarModalExito(productosSeleccionados, notas);
+
+      } catch (e) {
+        console.error(e);
+        mostrarToast('Error al guardar. Intenta de nuevo.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Enviar pedido';
+      }
+    }
+
+    // ── MODAL ÉXITO ──
+    function mostrarModalExito(productos, notas) {
+      document.getElementById('modalExito').classList.add('visible');
+
+      const btnWA = document.getElementById('btnCompartirWA');
+      btnWA.onclick = () => compartirWhatsApp(productos, notas);
+    }
+
+    function compartirWhatsApp(productos, notas) {
+      const fecha = new Date().toLocaleDateString('es-MX', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+
+      let mensaje = `🥖 *Pedido Panfitrión*\n`;
+      mensaje += `📍 *${cafeteriaActual.nombre}*\n`;
+      mensaje += `📅 ${fecha}\n\n`;
+      mensaje += `*Productos:*\n`;
+
+      productos.forEach(p => {
+        mensaje += `• ${p.nombre}: *${p.cantidad}*`;
+        if (p.precio) mensaje += ` ($${(p.precio * p.cantidad).toFixed(2)})`;
+        mensaje += '\n';
+      });
+
+      if (notas.trim()) {
+        mensaje += `\n📝 *Notas:* ${notas.trim()}`;
+      }
+
+      const texto = encodeURIComponent(mensaje);
+
+      // Web Share API — abre hoja nativa con opción de elegir contacto de WhatsApp
+      if (navigator.share) {
+        navigator.share({
+          title: 'Pedido Panfitrión',
+          text: mensaje
+        }).catch(() => {
+          // Si cancela, no hacer nada
+        });
+      } else {
+        // Fallback: abrir WhatsApp sin número (el usuario elige el contacto)
+        window.open(`https://wa.me/?text=${texto}`, '_blank');
+      }
+    }
+
+    function nuevoPedido() {
+      document.getElementById('modalExito').classList.remove('visible');
+      productosMenu.forEach(p => cantidades[p.id] = 0);
+      productosMenu.forEach(p => actualizarDisplay(p.id));
+      if (document.getElementById('notasInput')) {
+        document.getElementById('notasInput').value = '';
+      }
+      actualizarResumen();
+    }
+
+    // ── UTILS ──
+    function mostrarToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('visible');
+      setTimeout(() => t.classList.remove('visible'), 3000);
+    }
+
+    function mostrarNotFound(msg) {
+      document.getElementById('cafeNombre').textContent = 'Cafetería no encontrada';
+      document.getElementById('cafeSubtitulo').textContent = '';
+      document.getElementById('contenidoPrincipal').innerHTML = `
+        <div class="not-found">
+          <div class="not-found-icon">🍞</div>
+          <h2>Link inválido</h2>
+          <p>${msg}<br>Contacta a Panfitrión para obtener tu link correcto.</p>
+        </div>
+      `;
+    }
+
+    // ── INICIAR ──
+    init();
+  </script>
+</body>
+</html>g: utf-8
+# Your code here!
+
