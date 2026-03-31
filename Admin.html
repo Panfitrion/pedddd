@@ -18,17 +18,17 @@
       --rojo:   #e05252;
       --verde:  #4caf7d;
     }
- 
+
     /* ── Reset ── */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
- 
+
     body {
       background: var(--negro);
       color: var(--blanco);
       font-family: 'DM Sans', sans-serif;
       min-height: 100vh;
     }
- 
+
     /* ─────────────────────────────────────────
        LOGIN
     ───────────────────────────────────────── */
@@ -40,16 +40,16 @@
       min-height: 100vh;
       padding: 40px 24px;
     }
- 
+
     .login-logo {
       font-family: 'Playfair Display', serif;
       font-size: 26px;
       font-weight: 900;
       margin-bottom: 4px;
     }
- 
+
     .login-logo span { color: var(--dorado); }
- 
+
     .login-sub {
       font-size: 11px;
       letter-spacing: 0.15em;
@@ -57,7 +57,7 @@
       color: var(--tenue);
       margin-bottom: 36px;
     }
- 
+
     .login-card {
       width: 100%;
       max-width: 360px;
@@ -66,16 +66,16 @@
       border-radius: 18px;
       padding: 28px 24px;
     }
- 
+
     .login-card h2 {
       font-family: 'Playfair Display', serif;
       font-size: 19px;
       font-weight: 700;
       margin-bottom: 22px;
     }
- 
+
     .campo { margin-bottom: 14px; }
- 
+
     .campo label {
       display: block;
       font-size: 10px;
@@ -85,7 +85,7 @@
       color: var(--tenue);
       margin-bottom: 7px;
     }
- 
+
     .campo input {
       width: 100%;
       background: var(--negro);
@@ -97,9 +97,9 @@
       font-size: 14px;
       outline: none;
     }
- 
+
     .campo input:focus { border-color: var(--dorado); }
- 
+
     .btn-login {
       width: 100%;
       background: var(--dorado);
@@ -113,9 +113,9 @@
       cursor: pointer;
       margin-top: 6px;
     }
- 
+
     .btn-login:hover { opacity: 0.9; }
- 
+
     .login-error {
       color: var(--rojo);
       font-size: 12px;
@@ -123,12 +123,12 @@
       text-align: center;
       display: none;
     }
- 
+
     /* ─────────────────────────────────────────
        DASHBOARD
     ───────────────────────────────────────── */
     #dashboard { display: none; }
- 
+
     /* Sidebar */
     .sidebar {
       width: 230px;
@@ -141,29 +141,29 @@
       display: flex;
       flex-direction: column;
     }
- 
+
     .sidebar-logo {
       padding: 24px 20px 18px;
       border-bottom: 1px solid var(--gris3);
     }
- 
+
     .sidebar-logo h1 {
       font-family: 'Playfair Display', serif;
       font-size: 19px;
       font-weight: 900;
     }
- 
+
     .sidebar-logo h1 span { color: var(--dorado); }
- 
+
     .sidebar-logo small {
       font-size: 10px;
       color: var(--tenue);
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
- 
+
     .sidebar-nav { padding: 14px 10px; flex: 1; }
- 
+
     .nav-item {
       display: flex;
       align-items: center;
@@ -177,15 +177,15 @@
       transition: all 0.18s;
       margin-bottom: 3px;
     }
- 
+
     .nav-item:hover { background: var(--gris2); color: var(--blanco); }
     .nav-item.activo { background: rgba(201, 168, 76, 0.1); color: var(--dorado); }
- 
+
     .sidebar-footer {
       padding: 14px 10px;
       border-top: 1px solid var(--gris3);
     }
- 
+
     .btn-salir {
       width: 100%;
       background: transparent;
@@ -197,20 +197,20 @@
       font-size: 12px;
       cursor: pointer;
     }
- 
+
     .btn-salir:hover { border-color: var(--rojo); color: var(--rojo); }
- 
+
     /* Contenido principal */
     .main {
       margin-left: 230px;
       min-height: 100vh;
       padding: 36px;
     }
- 
+
     /* Paneles */
     .panel { display: none; }
     .panel.activo { display: block; }
- 
+
     .panel-header {
       display: flex;
       justify-content: space-between;
@@ -218,19 +218,19 @@
       margin-bottom: 28px;
       gap: 14px;
     }
- 
+
     .panel-header h2 {
       font-family: 'Playfair Display', serif;
       font-size: 24px;
       font-weight: 900;
     }
- 
+
     .panel-header p {
       font-size: 12px;
       color: var(--tenue);
       margin-top: 4px;
     }
- 
+
     /* Botones primario y secundario */
     .btn-primario {
       background: var(--dorado);
@@ -244,9 +244,9 @@
       cursor: pointer;
       white-space: nowrap;
     }
- 
+
     .btn-primario:hover { opacity: 0.9; }
- 
+
     .btn-secundario {
       background: transparent;
       border: 1px solid var(--gris3);
@@ -257,7 +257,7 @@
       font-size: 13px;
       cursor: pointer;
     }
- 
+
     /* ─────────────────────────────────────────
        GRID DE CAFETERÍAS
     ───────────────────────────────────────── */
@@ -266,7 +266,7 @@
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 18px;
     }
- 
+
     .cafe-card {
       background: var(--gris1);
       border: 1px solid var(--gris3);
@@ -274,31 +274,31 @@
       padding: 22px;
       transition: border-color 0.2s;
     }
- 
+
     .cafe-card:hover { border-color: rgba(201, 168, 76, 0.28); }
- 
+
     .cafe-card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 14px;
     }
- 
+
     .cafe-card-nombre {
       font-family: 'Playfair Display', serif;
       font-size: 17px;
       font-weight: 700;
     }
- 
+
     .cafe-card-slug {
       font-size: 11px;
       color: var(--dorado);
       margin-top: 3px;
       font-family: monospace;
     }
- 
+
     .cafe-card-acciones { display: flex; gap: 7px; }
- 
+
     .btn-icono {
       background: var(--gris2);
       border: none;
@@ -311,10 +311,10 @@
       cursor: pointer;
       font-size: 13px;
     }
- 
+
     .btn-icono:hover { background: var(--gris3); }
     .btn-icono.peligro:hover { background: rgba(224, 82, 82, 0.15); }
- 
+
     .cafe-card-link {
       background: var(--negro);
       border: 1px solid var(--gris3);
@@ -326,7 +326,7 @@
       gap: 8px;
       margin-bottom: 12px;
     }
- 
+
     .cafe-card-link code {
       font-size: 10px;
       color: var(--tenue);
@@ -335,7 +335,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
- 
+
     .btn-copiar {
       background: rgba(201, 168, 76, 0.12);
       border: none;
@@ -347,12 +347,12 @@
       cursor: pointer;
       white-space: nowrap;
     }
- 
+
     .btn-copiar:hover { background: rgba(201, 168, 76, 0.22); }
- 
+
     .cafe-card-productos { font-size: 12px; color: var(--tenue); }
     .cafe-card-productos strong { color: var(--blanco); }
- 
+
     /* ─────────────────────────────────────────
        TABLA DE PEDIDOS
     ───────────────────────────────────────── */
@@ -363,7 +363,7 @@
       flex-wrap: wrap;
       align-items: center;
     }
- 
+
     .filtro-select,
     .filtro-fecha {
       background: var(--gris1);
@@ -375,21 +375,21 @@
       font-size: 13px;
       outline: none;
     }
- 
+
     .filtro-select:focus,
     .filtro-fecha:focus { border-color: var(--dorado); }
- 
+
     .tabla-contenedor {
       background: var(--gris1);
       border: 1px solid var(--gris3);
       border-radius: 14px;
       overflow: hidden;
     }
- 
+
     table { width: 100%; border-collapse: collapse; }
- 
+
     thead { background: var(--gris2); border-bottom: 1px solid var(--gris3); }
- 
+
     th {
       padding: 11px 15px;
       text-align: left;
@@ -399,17 +399,17 @@
       text-transform: uppercase;
       color: var(--tenue);
     }
- 
+
     td {
       padding: 13px 15px;
       font-size: 13px;
       border-bottom: 1px solid rgba(42, 42, 42, 0.5);
       vertical-align: top;
     }
- 
+
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: rgba(255, 255, 255, 0.015); }
- 
+
     .badge-cafe {
       background: rgba(201, 168, 76, 0.1);
       color: var(--dorado);
@@ -419,18 +419,18 @@
       font-weight: 600;
       white-space: nowrap;
     }
- 
+
     .celda-productos { font-size: 12px; line-height: 1.9; }
     .celda-productos .linea-prod { color: var(--blanco); }
     .celda-productos .linea-prod span { color: var(--dorado); font-weight: 600; }
- 
+
     .celda-notas  { font-size: 12px; color: var(--tenue); font-style: italic; max-width: 180px; }
     .celda-fecha  { font-size: 11px; color: var(--tenue); white-space: nowrap; }
- 
+
     .tabla-vacia { text-align: center; padding: 50px 24px; color: var(--tenue); }
     .tabla-vacia .icono { font-size: 36px; margin-bottom: 10px; }
     .tabla-vacia p { font-size: 13px; }
- 
+
     /* ─────────────────────────────────────────
        MODAL DE CAFETERÍA
     ───────────────────────────────────────── */
@@ -444,9 +444,9 @@
       justify-content: center;
       padding: 24px;
     }
- 
+
     .modal-fondo.visible { display: flex; }
- 
+
     .modal {
       background: var(--gris1);
       border: 1px solid var(--gris3);
@@ -457,7 +457,7 @@
       max-height: 90vh;
       overflow-y: auto;
     }
- 
+
     .modal-titulo {
       font-family: 'Playfair Display', serif;
       font-size: 20px;
@@ -467,7 +467,7 @@
       justify-content: space-between;
       align-items: center;
     }
- 
+
     .btn-cerrar-modal {
       background: none;
       border: none;
@@ -476,9 +476,9 @@
       cursor: pointer;
       line-height: 1;
     }
- 
+
     .campo-form { margin-bottom: 18px; }
- 
+
     .campo-form label {
       display: block;
       font-size: 10px;
@@ -488,7 +488,7 @@
       color: var(--tenue);
       margin-bottom: 7px;
     }
- 
+
     .campo-form input {
       width: 100%;
       background: var(--negro);
@@ -500,16 +500,16 @@
       font-size: 13px;
       outline: none;
     }
- 
+
     .campo-form input:focus { border-color: var(--dorado); }
- 
+
     .campo-form small {
       display: block;
       font-size: 11px;
       color: var(--tenue);
       margin-top: 5px;
     }
- 
+
     /* Editor de productos del menú */
     .editor-productos {
       background: var(--negro);
@@ -517,7 +517,7 @@
       border-radius: 10px;
       overflow: hidden;
     }
- 
+
     .editor-productos-header {
       padding: 7px 11px;
       background: var(--gris2);
@@ -527,7 +527,7 @@
       text-transform: uppercase;
       color: var(--tenue);
     }
- 
+
     .producto-fila {
       display: flex;
       align-items: center;
@@ -535,7 +535,7 @@
       padding: 9px 11px;
       border-top: 1px solid var(--gris3);
     }
- 
+
     .producto-fila input {
       flex: 1;
       background: var(--gris2);
@@ -547,9 +547,9 @@
       font-size: 12px;
       outline: none;
     }
- 
+
     .producto-fila input:focus { border-color: rgba(201, 168, 76, 0.35); }
- 
+
     .btn-eliminar-prod {
       background: none;
       border: none;
@@ -564,9 +564,9 @@
       justify-content: center;
       flex-shrink: 0;
     }
- 
+
     .btn-eliminar-prod:hover { background: rgba(224, 82, 82, 0.12); color: var(--rojo); }
- 
+
     .btn-agregar-prod {
       width: 100%;
       background: transparent;
@@ -579,16 +579,16 @@
       text-align: center;
       font-family: 'DM Sans', sans-serif;
     }
- 
+
     .btn-agregar-prod:hover { background: rgba(201, 168, 76, 0.07); }
- 
+
     .modal-acciones {
       display: flex;
       justify-content: flex-end;
       gap: 9px;
       margin-top: 24px;
     }
- 
+
     /* ─────────────────────────────────────────
        Spinner y Toast
     ───────────────────────────────────────── */
@@ -601,9 +601,9 @@
       animation: girar 0.8s linear infinite;
       display: inline-block;
     }
- 
+
     @keyframes girar { to { transform: rotate(360deg); } }
- 
+
     .toast {
       position: fixed;
       bottom: 28px;
@@ -619,11 +619,11 @@
       opacity: 0;
       transition: all 0.3s;
     }
- 
+
     .toast.visible        { transform: translateY(0); opacity: 1; }
     .toast.tipo-ok  { border-color: var(--verde); }
     .toast.tipo-err { border-color: var(--rojo); }
- 
+
     /* ─────────────────────────────────────────
        Responsive
     ───────────────────────────────────────── */
@@ -634,7 +634,7 @@
   </style>
 </head>
 <body>
- 
+
   <!-- ─────────────────────────────────────────
        LOGIN
   ───────────────────────────────────────── -->
@@ -655,12 +655,12 @@
       <div class="login-error" id="loginError">Usuario o contraseña incorrectos</div>
     </div>
   </div>
- 
+
   <!-- ─────────────────────────────────────────
        DASHBOARD
   ───────────────────────────────────────── -->
   <div id="dashboard">
- 
+
     <!-- Sidebar -->
     <div class="sidebar">
       <div class="sidebar-logo">
@@ -675,10 +675,10 @@
         <button class="btn-salir" id="btnSalir">Cerrar sesión</button>
       </div>
     </div>
- 
+
     <!-- Contenido -->
     <div class="main">
- 
+
       <!-- Panel: Cafeterías -->
       <div class="panel activo" id="panelCafeterias">
         <div class="panel-header">
@@ -694,7 +694,7 @@
           </div>
         </div>
       </div>
- 
+
       <!-- Panel: Pedidos -->
       <div class="panel" id="panelPedidos">
         <div class="panel-header">
@@ -735,10 +735,10 @@
           </table>
         </div>
       </div>
- 
+
     </div>
   </div>
- 
+
   <!-- ─────────────────────────────────────────
        MODAL DE CAFETERÍA
   ───────────────────────────────────────── -->
@@ -748,12 +748,12 @@
         <span id="modalTitulo">Nueva cafetería</span>
         <button class="btn-cerrar-modal" id="btnCerrarModal">×</button>
       </div>
- 
+
       <div class="campo-form">
         <label>Nombre de la cafetería</label>
         <input type="text" id="campoNombre" placeholder="Ej: Cafetería La Granja" />
       </div>
- 
+
       <div class="campo-form">
         <label>Slug (identificador en la URL)</label>
         <input type="text" id="campoSlug" placeholder="la-granja" />
@@ -762,7 +762,7 @@
           Ejemplo: <code style="color: var(--dorado)">la-granja</code>
         </small>
       </div>
- 
+
       <div class="campo-form">
         <label>Productos del menú</label>
         <div class="editor-productos">
@@ -771,47 +771,51 @@
         </div>
         <button class="btn-agregar-prod" id="btnAgregarProducto">+ Agregar producto</button>
       </div>
- 
+
       <div class="modal-acciones">
         <button class="btn-secundario" id="btnCancelarModal">Cancelar</button>
         <button class="btn-primario"   id="btnGuardarCafeteria">Guardar cafetería</button>
       </div>
     </div>
   </div>
- 
+
   <!-- Toast de notificaciones -->
   <div class="toast" id="toast"></div>
- 
+
   <!-- Supabase SDK (síncrono, debe ir antes del script principal) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
- 
+
   <script>
     // ─────────────────────────────────────────
     // Configuración
     // ─────────────────────────────────────────
     const SUPABASE_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
- 
+
     // ⚠️ Cambia estas credenciales antes de publicar
     const ADMIN_USUARIO   = 'admin';
     const ADMIN_PASSWORD  = 'panfitron2024';
- 
+
     const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
- 
+
     // URL base para generar links a las cafeterías
     // Reemplaza /admin.html por /index.html sin importar la ruta
-    const URL_BASE = window.location.href.replace(/\/admin\.html(\?.*)?$/, '/index.html');
- 
+    // Genera la URL base apuntando a index.html en la misma carpeta
+    const URL_BASE = window.location.href
+      .split('?')[0]          // quitar query params
+      .replace(/\/[^\/]*$/, '') // quitar el último segmento (admin.html)
+      + '/index.html';
+
     // ID de la cafetería que se está editando (null = nueva)
     let editandoId = null;
- 
+
     // ─────────────────────────────────────────
     // Autenticación
     // ─────────────────────────────────────────
     function login() {
       const usuario  = document.getElementById('inputUsuario').value.trim();
       const password = document.getElementById('inputPassword').value;
- 
+
       if (usuario === ADMIN_USUARIO && password === ADMIN_PASSWORD) {
         sessionStorage.setItem('admin_auth', '1');
         document.getElementById('loginError').style.display = 'none';
@@ -820,24 +824,24 @@
         document.getElementById('loginError').style.display = 'block';
       }
     }
- 
+
     function salir() {
       sessionStorage.removeItem('admin_auth');
       document.getElementById('dashboard').style.display    = 'none';
       document.getElementById('loginScreen').style.display  = 'flex';
     }
- 
+
     function verificarAuth() {
       if (sessionStorage.getItem('admin_auth') === '1') mostrarDashboard();
     }
- 
+
     function mostrarDashboard() {
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('dashboard').style.display   = 'flex';
       cargarCafeterias();
       cargarSelectorCafeterias();
     }
- 
+
     // ─────────────────────────────────────────
     // Navegación entre paneles
     // ─────────────────────────────────────────
@@ -848,34 +852,34 @@
       document.getElementById('nav'      + id).classList.add('activo');
       if (id === 'Pedidos') cargarPedidos();
     }
- 
+
     // ─────────────────────────────────────────
     // Panel de cafeterías
     // ─────────────────────────────────────────
     async function cargarCafeterias() {
       const grid = document.getElementById('cafeteriasGrid');
       grid.innerHTML = '<div style="color: var(--tenue); font-size: 13px; padding: 16px 0;"><div class="spinner-sm"></div> Cargando…</div>';
- 
+
       const { data, error } = await db
         .from('cafeterias')
         .select('*')
         .order('created_at', { ascending: false });
- 
+
       if (error) {
         grid.innerHTML = '<div style="color: var(--rojo); font-size: 13px;">Error al cargar cafeterías.</div>';
         return;
       }
- 
+
       if (!data.length) {
         grid.innerHTML = '<div style="color: var(--tenue); font-size: 13px; padding: 16px 0;">Aún no hay cafeterías. Crea la primera.</div>';
         return;
       }
- 
+
       grid.innerHTML = data.map(c => {
         const link       = `${URL_BASE}?cafe=${c.slug}`;
         const numProds   = (c.menu || []).length;
         const nomSeguro  = c.nombre.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
- 
+
         return `
           <div class="cafe-card">
             <div class="cafe-card-header">
@@ -899,25 +903,25 @@
         `;
       }).join('');
     }
- 
+
     function copiarLink(url, btn) {
       navigator.clipboard.writeText(url).then(() => {
         btn.textContent = '✓ Copiado';
         setTimeout(() => btn.textContent = 'Copiar', 2000);
       });
     }
- 
+
     async function eliminarCafeteria(id, nombre) {
       if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
- 
+
       const { error } = await db.from('cafeterias').delete().eq('id', id);
- 
+
       if (error) { mostrarToast('Error al eliminar', 'err'); return; }
- 
+
       mostrarToast('Cafetería eliminada', 'ok');
       cargarCafeterias();
     }
- 
+
     // ─────────────────────────────────────────
     // Modal: crear / editar cafetería
     // ─────────────────────────────────────────
@@ -927,11 +931,11 @@
       document.getElementById('campoNombre').value       = '';
       document.getElementById('campoSlug').value         = '';
       document.getElementById('listaProductos').innerHTML = '';
- 
+
       // Arrancar con dos filas vacías
       agregarFilaProducto();
       agregarFilaProducto();
- 
+
       // Auto-generar slug al escribir el nombre
       document.getElementById('campoNombre').oninput = function () {
         document.getElementById('campoSlug').value = this.value
@@ -940,31 +944,31 @@
           .replace(/[^a-z0-9]+/g, '-')
           .replace(/^-|-$/g, '');
       };
- 
+
       document.getElementById('modalFondo').classList.add('visible');
     }
- 
+
     async function abrirEdicion(id) {
       const { data, error } = await db.from('cafeterias').select('*').eq('id', id).single();
       if (error) { mostrarToast('Error al cargar la cafetería', 'err'); return; }
- 
+
       editandoId = id;
       document.getElementById('modalTitulo').textContent  = 'Editar cafetería';
       document.getElementById('campoNombre').value        = data.nombre;
       document.getElementById('campoSlug').value          = data.slug;
       document.getElementById('campoNombre').oninput      = null;
       document.getElementById('listaProductos').innerHTML  = '';
- 
+
       (data.menu || []).forEach(p => agregarFilaProducto(p));
- 
+
       document.getElementById('modalFondo').classList.add('visible');
     }
- 
+
     function cerrarModal() {
       document.getElementById('modalFondo').classList.remove('visible');
       editandoId = null;
     }
- 
+
     function agregarFilaProducto(producto = null) {
       const id  = 'fila-' + Date.now() + Math.random().toString(36).slice(2, 6);
       const div = document.createElement('div');
@@ -981,21 +985,21 @@
       `;
       document.getElementById('listaProductos').appendChild(div);
     }
- 
+
     async function guardarCafeteria() {
       const nombre = document.getElementById('campoNombre').value.trim();
       const slug   = document.getElementById('campoSlug').value.trim();
- 
+
       if (!nombre || !slug) {
         mostrarToast('Completa el nombre y el slug', 'err');
         return;
       }
- 
+
       if (!/^[a-z0-9-]+$/.test(slug)) {
         mostrarToast('Slug inválido: solo minúsculas, números y guiones', 'err');
         return;
       }
- 
+
       // Leer productos del editor
       const menu = [];
       document.querySelectorAll('#listaProductos .producto-fila').forEach(fila => {
@@ -1006,32 +1010,32 @@
           nombre,
         });
       });
- 
+
       if (!menu.length) {
         mostrarToast('Agrega al menos un producto', 'err');
         return;
       }
- 
+
       const datos = { nombre, slug, menu };
       let error;
- 
+
       if (editandoId) {
         ({ error } = await db.from('cafeterias').update(datos).eq('id', editandoId));
       } else {
         ({ error } = await db.from('cafeterias').insert([{ ...datos, created_at: new Date().toISOString() }]));
       }
- 
+
       if (error) {
         mostrarToast(error.code === '23505' ? 'Ese slug ya está en uso' : 'Error al guardar', 'err');
         return;
       }
- 
+
       cerrarModal();
       mostrarToast(editandoId ? 'Cafetería actualizada' : 'Cafetería creada', 'ok');
       cargarCafeterias();
       cargarSelectorCafeterias();
     }
- 
+
     // ─────────────────────────────────────────
     // Panel de pedidos
     // ─────────────────────────────────────────
@@ -1043,7 +1047,7 @@
         sel.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
       });
     }
- 
+
     async function cargarPedidos() {
       const tbody = document.getElementById('tablaPedidos');
       tbody.innerHTML = `
@@ -1053,21 +1057,21 @@
           </td>
         </tr>
       `;
- 
+
       let query = db
         .from('pedidos')
         .select('*')
         .order('fecha', { ascending: false })
         .limit(200);
- 
+
       const cafeteriaId = document.getElementById('filtroCafeteria').value;
       const fecha       = document.getElementById('filtroFecha').value;
- 
+
       if (cafeteriaId) query = query.eq('cafeteria_id', cafeteriaId);
       if (fecha)       query = query.gte('fecha', `${fecha}T00:00:00`).lte('fecha', `${fecha}T23:59:59`);
- 
+
       const { data, error } = await query;
- 
+
       if (error) {
         tbody.innerHTML = `
           <tr>
@@ -1078,7 +1082,7 @@
         `;
         return;
       }
- 
+
       if (!data.length) {
         tbody.innerHTML = `
           <tr>
@@ -1092,17 +1096,17 @@
         `;
         return;
       }
- 
+
       tbody.innerHTML = data.map(pedido => {
         const fecha = new Date(pedido.fecha).toLocaleDateString('es-MX', {
           day: '2-digit', month: 'short', year: 'numeric',
           hour: '2-digit', minute: '2-digit',
         });
- 
+
         const productos = (pedido.productos || [])
           .map(p => `<div class="linea-prod">${p.nombre} <span>×${p.cantidad}</span></div>`)
           .join('');
- 
+
         return `
           <tr>
             <td class="celda-fecha">${fecha}</td>
@@ -1113,7 +1117,7 @@
         `;
       }).join('');
     }
- 
+
     // ─────────────────────────────────────────
     // Utilidades
     // ─────────────────────────────────────────
@@ -1124,53 +1128,53 @@
       clearTimeout(el._timer);
       el._timer = setTimeout(() => el.classList.remove('visible'), 3000);
     }
- 
+
     // ─────────────────────────────────────────
     // Eventos
     // ─────────────────────────────────────────
     document.getElementById('btnLogin')
       .addEventListener('click', login);
- 
+
     document.getElementById('inputPassword')
       .addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
- 
+
     document.getElementById('btnSalir')
       .addEventListener('click', salir);
- 
+
     document.getElementById('navCafeterias')
       .addEventListener('click', () => irPanel('Cafeterias'));
- 
+
     document.getElementById('navPedidos')
       .addEventListener('click', () => irPanel('Pedidos'));
- 
+
     document.getElementById('btnNuevaCafeteria')
       .addEventListener('click', abrirCreacion);
- 
+
     document.getElementById('btnCerrarModal')
       .addEventListener('click', cerrarModal);
- 
+
     document.getElementById('btnCancelarModal')
       .addEventListener('click', cerrarModal);
- 
+
     document.getElementById('btnGuardarCafeteria')
       .addEventListener('click', guardarCafeteria);
- 
+
     document.getElementById('btnAgregarProducto')
       .addEventListener('click', () => agregarFilaProducto());
- 
+
     document.getElementById('filtroCafeteria')
       .addEventListener('change', cargarPedidos);
- 
+
     document.getElementById('filtroFecha')
       .addEventListener('change', cargarPedidos);
- 
+
     document.getElementById('btnLimpiarFiltros')
       .addEventListener('click', () => {
         document.getElementById('filtroCafeteria').value = '';
         document.getElementById('filtroFecha').value     = '';
         cargarPedidos();
       });
- 
+
     // ─────────────────────────────────────────
     // Iniciar
     // ─────────────────────────────────────────
@@ -1178,4 +1182,3 @@
   </script>
 </body>
 </html>
- 
