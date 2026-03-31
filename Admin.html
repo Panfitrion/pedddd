@@ -221,7 +221,8 @@
   const AU = 'admin';
   const AP = 'panfitron2024';
 
-  const BASE = window.location.origin + window.location.pathname.replace('admin.html','index.html');
+  // Construye el BASE de forma robusta: quita admin.html del path sin importar slashes
+  const BASE = window.location.href.replace(/\/admin\.html(\?.*)?$/, '/index.html');
   let editId = null;
 
   // ── LOGIN ──
