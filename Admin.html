@@ -103,8 +103,8 @@
     .fg input:focus { border-color:var(--dorado); }
     .fg small { display:block; font-size:11px; color:var(--tenue); margin-top:5px; }
     .prods-editor { background:var(--negro); border:1px solid var(--gris3); border-radius:10px; overflow:hidden; }
-    .prods-hdr { display:grid; grid-template-columns:1fr 110px 110px 36px; gap:7px; padding:7px 11px; background:var(--gris2); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--tenue); font-weight:600; }
-    .prod-fila { display:grid; grid-template-columns:1fr 110px 110px 36px; gap:7px; padding:9px 11px; border-bottom:1px solid var(--gris3); align-items:center; }
+    .prods-hdr { display:grid; grid-template-columns:1fr 36px; gap:7px; padding:7px 11px; background:var(--gris2); font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--tenue); font-weight:600; }
+    .prod-fila { display:grid; grid-template-columns:1fr 36px; gap:7px; padding:9px 11px; border-bottom:1px solid var(--gris3); align-items:center; }
     .prod-fila:last-child { border-bottom:none; }
     .prod-fila input { background:var(--gris2); border:1px solid transparent; border-radius:7px; padding:7px 9px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:12px; outline:none; width:100%; }
     .prod-fila input:focus { border-color:rgba(201,168,76,.35); }
@@ -195,7 +195,7 @@
     <div class="fg">
       <label>Menú de productos</label>
       <div class="prods-editor">
-        <div class="prods-hdr"><span>Nombre</span><span>Categoría</span><span>Precio (opc.)</span><span></span></div>
+        <div class="prods-hdr"><span>Nombre del producto</span><span></span></div>
         <div id="prodsFila"></div>
       </div>
       <button class="btn-add-prod" id="btnAddProd">+ Agregar producto</button>
@@ -278,7 +278,7 @@
           </div>
         </div>
         <div class="cc-link"><code>${link}</code><button class="btn-copy" onclick="copiar('${link}',this)">Copiar</button></div>
-        <div class="cc-prods"><strong>${n}</strong> productos${cats?' · '+cats:''}</div>
+        <div class="cc-prods"><strong>${n}</strong> productos</div>
       </div>`;
     }).join('');
   }
@@ -334,8 +334,7 @@
     d.className = 'prod-fila'; d.id = uid;
     d.innerHTML = `
       <input type="text" placeholder="Nombre del producto" value="${p?p.nombre:''}" data-c="nombre" />
-      <input type="text" placeholder="Categoría" value="${p?(p.categoria||''):''}" data-c="cat" />
-      <input type="number" placeholder="0.00" value="${p?(p.precio||''):''}" data-c="precio" min="0" step="0.5" />
+
       <button class="btn-del-prod" onclick="document.getElementById('${uid}').remove()">×</button>`;
     document.getElementById('prodsFila').appendChild(d);
   }
@@ -349,7 +348,7 @@
     document.querySelectorAll('#prodsFila .prod-fila').forEach(f => {
       const nom = f.querySelector('[data-c="nombre"]').value.trim();
       if (!nom) return;
-      menu.push({ id:'p'+Math.random().toString(36).slice(2,8), nombre:nom, categoria:f.querySelector('[data-c="cat"]').value.trim()||'General', precio:parseFloat(f.querySelector('[data-c="precio"]').value)||null });
+      menu.push({ id:'p'+Math.random().toString(36).slice(2,8), nombre:nom });
     });
     if (!menu.length) { toast('Agrega al menos un producto','err'); return; }
     const payload = { nombre, slug, menu };
