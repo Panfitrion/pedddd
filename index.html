@@ -3,962 +3,411 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Panfitrión — Pedidos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <title>Panfitrión</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <style>
     :root {
       --negro: #0a0a0a;
       --dorado: #c9a84c;
-      --dorado-claro: #e8c97a;
       --dorado-oscuro: #9a7a2e;
       --blanco: #f5f2eb;
-      --blanco-puro: #ffffff;
-      --gris: #1e1e1e;
-      --gris-medio: #2e2e2e;
-      --texto-claro: #b0a88a;
+      --gris: #1a1a1a;
+      --gris2: #242424;
+      --tenue: #b0a070;
     }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { background:var(--negro); color:var(--blanco); font-family:'DM Sans',sans-serif; min-height:100vh; }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-    body {
-      background-color: var(--negro);
-      color: var(--blanco);
-      font-family: 'DM Sans', sans-serif;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── HEADER ── */
+    /* HEADER */
     .header {
-      background: var(--negro);
-      border-bottom: 1px solid rgba(201,168,76,0.2);
-      padding: 20px 24px 16px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background:var(--negro);
+      border-bottom:1px solid rgba(201,168,76,0.18);
+      padding:18px 20px 14px;
+      position:sticky; top:0; z-index:50;
     }
-
-    .header-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
+    .header-marca { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+    .marca-circulo {
+      width:34px; height:34px; border-radius:50%;
+      border:1.5px solid var(--dorado);
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink:0;
     }
-
-    .logo-mark {
-      width: 36px;
-      height: 36px;
-      border: 1.5px solid var(--dorado);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .logo-mark img {
-      width: 28px;
-      height: 28px;
-      object-fit: contain;
-      display: none;
-    }
-
-    .logo-mark .logo-fallback {
-      font-family: 'Playfair Display', serif;
-      font-size: 14px;
-      font-weight: 900;
-      color: var(--dorado);
-      letter-spacing: -0.5px;
-    }
-
-    .logo-text {
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--blanco);
-      letter-spacing: 0.02em;
-    }
-
-    .logo-text span {
-      color: var(--dorado);
-    }
-
-    .cafe-nombre {
-      font-family: 'Playfair Display', serif;
-      font-size: 26px;
-      font-weight: 900;
-      color: var(--blanco-puro);
-      line-height: 1.1;
-    }
-
-    .cafe-subtitulo {
-      font-size: 12px;
-      color: var(--texto-claro);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-top: 2px;
-    }
-
-    /* ── LOADING / ERROR ── */
-    .pantalla-estado {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 60vh;
-      gap: 16px;
-      padding: 40px 24px;
-      text-align: center;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 2px solid rgba(201,168,76,0.2);
-      border-top-color: var(--dorado);
-      border-radius: 50%;
-      animation: girar 0.8s linear infinite;
-    }
-
-    @keyframes girar { to { transform: rotate(360deg); } }
-
-    .pantalla-estado p {
-      color: var(--texto-claro);
-      font-size: 15px;
-    }
-
-    /* ── CATEGORÍAS NAV ── */
-    .categorias-nav {
-      display: flex;
-      gap: 8px;
-      padding: 12px 24px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .categorias-nav::-webkit-scrollbar { display: none; }
-
-    .cat-pill {
-      flex-shrink: 0;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      border: 1px solid rgba(201,168,76,0.3);
-      color: var(--texto-claro);
-      background: transparent;
-      cursor: pointer;
-      transition: all 0.2s;
-      white-space: nowrap;
-    }
-
-    .cat-pill.activa {
-      background: var(--dorado);
-      border-color: var(--dorado);
-      color: var(--negro);
-      font-weight: 600;
-    }
-
-    /* ── SECCIÓN DE PRODUCTOS ── */
-    .seccion {
-      padding: 0 24px;
-    }
-
-    .seccion-titulo {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--dorado);
-      padding: 20px 0 10px;
-      border-bottom: 1px solid rgba(201,168,76,0.15);
-      margin-bottom: 4px;
-    }
-
-    /* ── TARJETA DE PRODUCTO ── */
-    .producto {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-      gap: 16px;
-    }
-
-    .producto:last-child { border-bottom: none; }
-
-    .producto-info { flex: 1; }
-
-    .producto-nombre {
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--blanco);
-      line-height: 1.3;
-    }
-
-    .producto-precio {
-      font-size: 12px;
-      color: var(--texto-claro);
-      margin-top: 2px;
-    }
-
-    /* ── CONTROL DE CANTIDAD ── */
-    .cantidad-control {
-      display: flex;
-      align-items: center;
-      gap: 0;
-      background: var(--gris);
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid rgba(201,168,76,0.15);
-      flex-shrink: 0;
-    }
-
-    .btn-cant {
-      width: 38px;
-      height: 38px;
-      background: transparent;
-      border: none;
-      color: var(--dorado);
-      font-size: 20px;
-      font-weight: 300;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
-      user-select: none;
-    }
-
-    .btn-cant:active { background: rgba(201,168,76,0.15); }
-
-    .cant-display {
-      min-width: 32px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--blanco);
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .cant-display.activo { color: var(--dorado); }
-
-    /* ── TECLADO NUMÉRICO MODAL ── */
-    .teclado-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 200;
-      display: none;
-      align-items: flex-end;
-    }
-
-    .teclado-overlay.visible { display: flex; }
-
-    .teclado-panel {
-      width: 100%;
-      background: var(--gris);
-      border-radius: 20px 20px 0 0;
-      padding: 20px 20px 36px;
-      animation: subir 0.25s ease;
-    }
-
-    @keyframes subir { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-    .teclado-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .teclado-producto-nombre {
-      font-family: 'Playfair Display', serif;
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--blanco);
-    }
-
-    .teclado-display {
-      background: var(--negro);
-      border-radius: 12px;
-      padding: 16px;
-      text-align: center;
-      font-size: 42px;
-      font-weight: 700;
-      color: var(--dorado);
-      font-family: 'Playfair Display', serif;
-      margin-bottom: 16px;
-      min-height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      letter-spacing: -1px;
-    }
-
-    .teclado-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-
-    .tecla {
-      background: var(--gris-medio);
-      border: none;
-      border-radius: 12px;
-      height: 58px;
-      font-size: 22px;
-      font-weight: 500;
-      color: var(--blanco);
-      cursor: pointer;
-      transition: all 0.1s;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .tecla:active { background: rgba(201,168,76,0.25); transform: scale(0.96); }
-
-    .tecla.borrar {
-      color: var(--texto-claro);
-      font-size: 18px;
-    }
-
-    .tecla.confirmar {
-      background: var(--dorado);
-      color: var(--negro);
-      font-weight: 700;
-      font-size: 16px;
-    }
-
-    .tecla.confirmar:active { background: var(--dorado-oscuro); }
-
-    .btn-cerrar-teclado {
-      background: none;
-      border: none;
-      color: var(--texto-claro);
-      font-size: 26px;
-      cursor: pointer;
-      padding: 0 4px;
-      line-height: 1;
-    }
-
-    /* ── NOTAS ── */
-    .notas-seccion {
-      padding: 20px 24px;
-    }
-
-    .notas-label {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--dorado);
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .notas-input {
-      width: 100%;
-      background: var(--gris);
-      border: 1px solid rgba(201,168,76,0.2);
-      border-radius: 12px;
-      padding: 14px 16px;
-      color: var(--blanco);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      resize: none;
-      outline: none;
-      min-height: 80px;
-    }
-
-    .notas-input::placeholder { color: rgba(176,168,138,0.5); }
-    .notas-input:focus { border-color: rgba(201,168,76,0.5); }
-
-    /* ── RESUMEN FLOTANTE ── */
-    .resumen-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: var(--gris);
-      border-top: 1px solid rgba(201,168,76,0.25);
-      padding: 12px 24px 28px;
-      z-index: 150;
-      transform: translateY(100%);
-      transition: transform 0.3s ease;
-    }
-
-    .resumen-bar.visible { transform: translateY(0); }
-
-    .resumen-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .resumen-texto {
-      font-size: 13px;
-      color: var(--texto-claro);
-    }
-
-    .resumen-count {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--dorado);
-    }
-
-    .btn-enviar {
-      width: 100%;
-      background: var(--dorado);
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--negro);
-      cursor: pointer;
-      transition: all 0.2s;
-      letter-spacing: 0.02em;
-    }
-
-    .btn-enviar:active { background: var(--dorado-oscuro); transform: scale(0.98); }
-    .btn-enviar:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    /* ── ESPACIO INFERIOR para que no tape el resumen-bar ── */
-    .espacio-inferior { height: 120px; }
-
-    /* ── MODAL ÉXITO ── */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      z-index: 300;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .modal-overlay.visible { display: flex; }
-
-    .modal-card {
-      background: var(--gris);
-      border-radius: 20px;
-      padding: 32px 28px;
-      text-align: center;
-      border: 1px solid rgba(201,168,76,0.3);
-      max-width: 360px;
-      width: 100%;
-      animation: aparecer 0.3s ease;
-    }
-
-    @keyframes aparecer { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
-    .modal-icono {
-      font-size: 52px;
-      margin-bottom: 16px;
-    }
-
-    .modal-titulo {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--blanco);
-      margin-bottom: 8px;
-    }
-
-    .modal-texto {
-      font-size: 14px;
-      color: var(--texto-claro);
-      line-height: 1.6;
-      margin-bottom: 24px;
-    }
-
-    .btn-compartir {
-      width: 100%;
-      background: #25D366;
-      border: none;
-      border-radius: 14px;
-      padding: 16px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      transition: opacity 0.2s;
-    }
-
-    .btn-compartir:active { opacity: 0.85; }
-
-    .btn-nuevo-pedido {
-      width: 100%;
-      background: transparent;
-      border: 1px solid rgba(201,168,76,0.3);
-      border-radius: 14px;
-      padding: 14px;
-      font-family: 'DM Sans', sans-serif;
-      font-size: 15px;
-      font-weight: 500;
-      color: var(--texto-claro);
-      cursor: pointer;
-    }
-
-    /* ── TOAST ── */
-    .toast {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(-80px);
-      background: var(--gris-medio);
-      color: var(--blanco);
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-size: 14px;
-      z-index: 500;
-      transition: transform 0.3s ease;
-      border: 1px solid rgba(201,168,76,0.2);
-      white-space: nowrap;
-      max-width: 90vw;
-    }
-
-    .toast.visible { transform: translateX(-50%) translateY(0); }
-
-    /* ── PANTALLA CAFÉ NO ENCONTRADO ── */
-    .not-found {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 80vh;
-      padding: 40px 24px;
-      text-align: center;
-      gap: 12px;
-    }
-
-    .not-found-icon { font-size: 48px; margin-bottom: 8px; }
-
-    .not-found h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
-      color: var(--blanco);
-    }
-
-    .not-found p { font-size: 14px; color: var(--texto-claro); line-height: 1.6; }
+    .marca-circulo img { width:26px; height:26px; object-fit:contain; display:none; }
+    .marca-circulo .marca-letra { font-family:'Playfair Display',serif; font-size:14px; font-weight:900; color:var(--dorado); }
+    .marca-nombre { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; letter-spacing:0.03em; }
+    .marca-nombre span { color:var(--dorado); }
+    .cafe-titulo { font-family:'Playfair Display',serif; font-size:24px; font-weight:900; line-height:1.1; }
+    .cafe-sub { font-size:11px; color:var(--tenue); letter-spacing:0.13em; text-transform:uppercase; margin-top:3px; }
+
+    /* ESTADOS */
+    .estado { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:55vh; gap:14px; padding:40px 24px; text-align:center; }
+    .spinner { width:38px; height:38px; border:2px solid rgba(201,168,76,0.15); border-top-color:var(--dorado); border-radius:50%; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .estado p { color:var(--tenue); font-size:14px; }
+    .error-icon { font-size:44px; }
+    .error-titulo { font-family:'Playfair Display',serif; font-size:20px; }
+    .error-texto { font-size:13px; color:var(--tenue); line-height:1.6; }
+
+    /* CATEGORÍAS */
+    .cats { display:flex; gap:8px; padding:12px 20px; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .cats::-webkit-scrollbar { display:none; }
+    .cat-btn { flex-shrink:0; padding:5px 14px; border-radius:20px; font-size:12px; font-weight:500; border:1px solid rgba(201,168,76,0.25); color:var(--tenue); background:transparent; cursor:pointer; transition:all .2s; white-space:nowrap; }
+    .cat-btn.on { background:var(--dorado); border-color:var(--dorado); color:var(--negro); font-weight:600; }
+
+    /* SECCIÓN */
+    .seccion { padding:0 20px; }
+    .sec-titulo { font-size:10px; font-weight:600; letter-spacing:0.15em; text-transform:uppercase; color:var(--dorado); padding:18px 0 8px; border-bottom:1px solid rgba(201,168,76,0.12); margin-bottom:2px; }
+
+    /* PRODUCTO */
+    .prod { display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-bottom:1px solid rgba(255,255,255,0.05); gap:14px; }
+    .prod:last-child { border-bottom:none; }
+    .prod-info { flex:1; }
+    .prod-nombre { font-size:15px; font-weight:500; }
+    .prod-precio { font-size:12px; color:var(--tenue); margin-top:2px; }
+
+    /* CONTROL CANTIDAD */
+    .cant-ctrl { display:flex; align-items:center; background:var(--gris); border-radius:10px; border:1px solid rgba(201,168,76,0.12); overflow:hidden; flex-shrink:0; }
+    .cant-btn { width:36px; height:36px; background:transparent; border:none; color:var(--dorado); font-size:20px; font-weight:300; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .cant-btn:active { background:rgba(201,168,76,0.12); }
+    .cant-val { min-width:28px; text-align:center; font-size:14px; font-weight:600; color:var(--blanco); }
+    .cant-val.on { color:var(--dorado); }
+
+    /* TECLADO */
+    .teclado-bg { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:200; display:none; align-items:flex-end; }
+    .teclado-bg.show { display:flex; }
+    .teclado-panel { width:100%; background:var(--gris2); border-radius:20px 20px 0 0; padding:18px 18px 32px; animation:subir .22s ease; }
+    @keyframes subir { from { transform:translateY(100%); } }
+    .teclado-nombre { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; margin-bottom:14px; }
+    .teclado-display { background:var(--negro); border-radius:12px; height:72px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:40px; font-weight:700; color:var(--dorado); margin-bottom:14px; letter-spacing:-1px; }
+    .teclado-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
+    .tecla { background:var(--gris); border:none; border-radius:12px; height:56px; font-size:21px; font-weight:500; color:var(--blanco); cursor:pointer; font-family:'DM Sans',sans-serif; transition:transform .1s; }
+    .tecla:active { transform:scale(.95); background:rgba(201,168,76,0.2); }
+    .tecla.del { font-size:17px; color:var(--tenue); }
+    .tecla.ok { background:var(--dorado); color:var(--negro); font-weight:700; font-size:15px; }
+    .tecla.ok:active { background:var(--dorado-oscuro); }
+
+    /* NOTAS */
+    .notas-wrap { padding:18px 20px 0; }
+    .notas-label { font-size:10px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--dorado); display:block; margin-bottom:8px; }
+    .notas-ta { width:100%; background:var(--gris); border:1px solid rgba(201,168,76,0.15); border-radius:12px; padding:12px 14px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:14px; resize:none; outline:none; min-height:72px; }
+    .notas-ta::placeholder { color:rgba(176,160,112,0.4); }
+    .notas-ta:focus { border-color:rgba(201,168,76,0.4); }
+
+    /* BARRA INFERIOR */
+    .bar { position:fixed; bottom:0; left:0; right:0; background:var(--gris2); border-top:1px solid rgba(201,168,76,0.2); padding:10px 20px 26px; z-index:100; transform:translateY(100%); transition:transform .28s ease; }
+    .bar.show { transform:translateY(0); }
+    .bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .bar-label { font-size:12px; color:var(--tenue); }
+    .bar-count { font-size:14px; font-weight:600; color:var(--dorado); }
+    .btn-enviar { width:100%; background:var(--dorado); border:none; border-radius:13px; padding:15px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:var(--negro); cursor:pointer; transition:opacity .2s; }
+    .btn-enviar:active { opacity:.85; }
+    .btn-enviar:disabled { opacity:.4; }
+    .espacio { height:110px; }
+
+    /* MODAL ÉXITO */
+    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.82); z-index:300; display:none; align-items:center; justify-content:center; padding:24px; }
+    .modal-bg.show { display:flex; }
+    .modal-card { background:var(--gris2); border-radius:20px; padding:30px 26px; text-align:center; border:1px solid rgba(201,168,76,0.25); max-width:340px; width:100%; animation:aparecer .28s ease; }
+    @keyframes aparecer { from { transform:scale(.9); opacity:0; } }
+    .modal-icon { font-size:48px; margin-bottom:14px; }
+    .modal-titulo { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:8px; }
+    .modal-texto { font-size:13px; color:var(--tenue); line-height:1.6; margin-bottom:22px; }
+    .btn-wa { width:100%; background:#25D366; border:none; border-radius:13px; padding:15px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:9px; }
+    .btn-wa:active { opacity:.85; }
+    .btn-otro { width:100%; background:transparent; border:1px solid rgba(201,168,76,0.2); border-radius:13px; padding:13px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--tenue); cursor:pointer; }
+
+    /* TOAST */
+    .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-70px); background:var(--gris2); color:var(--blanco); padding:10px 18px; border-radius:10px; font-size:13px; z-index:400; transition:transform .28s ease; border:1px solid rgba(201,168,76,0.18); white-space:nowrap; }
+    .toast.show { transform:translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="header-logo">
-      <div class="logo-mark">
-        <img id="logoImg" src="" alt="Panfitrión" />
-        <span class="logo-fallback" id="logoFallback">P</span>
-      </div>
-      <span class="logo-text">Panfi<span>trión</span></span>
+<div class="header">
+  <div class="header-marca">
+    <div class="marca-circulo">
+      <img id="logoImg" src="logo.png" alt="P" onload="this.style.display='block';document.getElementById('marcaLetra').style.display='none'" />
+      <span class="marca-letra" id="marcaLetra">P</span>
     </div>
-    <div class="cafe-nombre" id="cafeNombre">Cargando...</div>
-    <div class="cafe-subtitulo" id="cafeSubtitulo">Haz tu pedido del día</div>
+    <span class="marca-nombre">Panfi<span>trión</span></span>
   </div>
+  <div class="cafe-titulo" id="cafeTitulo">Cargando…</div>
+  <div class="cafe-sub">Haz tu pedido del día</div>
+</div>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <div id="contenidoPrincipal">
-    <div class="pantalla-estado" id="estadoCargando">
-      <div class="spinner"></div>
-      <p>Cargando menú...</p>
+<div id="contenido">
+  <div class="estado"><div class="spinner"></div><p>Cargando menú…</p></div>
+</div>
+
+<div class="espacio"></div>
+
+<!-- BARRA ENVIAR -->
+<div class="bar" id="bar">
+  <div class="bar-top">
+    <span class="bar-label">Tu pedido</span>
+    <span class="bar-count" id="barCount">0 productos</span>
+  </div>
+  <button class="btn-enviar" id="btnEnviar">Enviar pedido</button>
+</div>
+
+<!-- TECLADO -->
+<div class="teclado-bg" id="tecladoBg">
+  <div class="teclado-panel" id="tecladoPanel">
+    <div class="teclado-nombre" id="tecladoNombre">Producto</div>
+    <div class="teclado-display" id="tecladoDisplay">0</div>
+    <div class="teclado-grid">
+      <button class="tecla" data-k="7">7</button>
+      <button class="tecla" data-k="8">8</button>
+      <button class="tecla" data-k="9">9</button>
+      <button class="tecla" data-k="4">4</button>
+      <button class="tecla" data-k="5">5</button>
+      <button class="tecla" data-k="6">6</button>
+      <button class="tecla" data-k="1">1</button>
+      <button class="tecla" data-k="2">2</button>
+      <button class="tecla" data-k="3">3</button>
+      <button class="tecla del" data-k="del">⌫</button>
+      <button class="tecla" data-k="0">0</button>
+      <button class="tecla ok" data-k="ok">OK</button>
     </div>
   </div>
+</div>
 
-  <!-- ESPACIO INFERIOR -->
-  <div class="espacio-inferior"></div>
-
-  <!-- BARRA INFERIOR CON BOTÓN ENVIAR -->
-  <div class="resumen-bar" id="resumenBar">
-    <div class="resumen-info">
-      <span class="resumen-texto">Tu pedido</span>
-      <span class="resumen-count" id="resumenCount">0 productos</span>
-    </div>
-    <button class="btn-enviar" id="btnEnviar" onclick="enviarPedido()">
-      Enviar pedido
+<!-- MODAL ÉXITO -->
+<div class="modal-bg" id="modalBg">
+  <div class="modal-card">
+    <div class="modal-icon">✅</div>
+    <div class="modal-titulo">¡Pedido registrado!</div>
+    <div class="modal-texto">Tu pedido quedó guardado. Compártelo por WhatsApp para confirmarlo con Panfitrión.</div>
+    <button class="btn-wa" id="btnWA">
+      <svg width="19" height="19" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Compartir por WhatsApp
     </button>
+    <button class="btn-otro" id="btnOtroPedido">Hacer otro pedido</button>
   </div>
+</div>
 
-  <!-- TECLADO NUMÉRICO -->
-  <div class="teclado-overlay" id="tecladoOverlay" onclick="cerrarTeclado(event)">
-    <div class="teclado-panel">
-      <div class="teclado-header">
-        <span class="teclado-producto-nombre" id="tecladoNombreProducto">Producto</span>
-        <button class="btn-cerrar-teclado" onclick="cerrarTeclado()">×</button>
-      </div>
-      <div class="teclado-display" id="tecladoDisplay">0</div>
-      <div class="teclado-grid">
-        <button class="tecla" onclick="teclaPress('7')">7</button>
-        <button class="tecla" onclick="teclaPress('8')">8</button>
-        <button class="tecla" onclick="teclaPress('9')">9</button>
-        <button class="tecla" onclick="teclaPress('4')">4</button>
-        <button class="tecla" onclick="teclaPress('5')">5</button>
-        <button class="tecla" onclick="teclaPress('6')">6</button>
-        <button class="tecla" onclick="teclaPress('1')">1</button>
-        <button class="tecla" onclick="teclaPress('2')">2</button>
-        <button class="tecla" onclick="teclaPress('3')">3</button>
-        <button class="tecla borrar" onclick="teclaPress('borrar')">⌫</button>
-        <button class="tecla" onclick="teclaPress('0')">0</button>
-        <button class="tecla confirmar" onclick="teclaPress('ok')">OK</button>
-      </div>
-    </div>
-  </div>
+<div class="toast" id="toast"></div>
 
-  <!-- MODAL ÉXITO -->
-  <div class="modal-overlay" id="modalExito">
-    <div class="modal-card">
-      <div class="modal-icono">✅</div>
-      <div class="modal-titulo">¡Pedido registrado!</div>
-      <div class="modal-texto" id="modalTexto">Tu pedido ha sido guardado. Compártelo por WhatsApp para confirmarlo.</div>
-      <button class="btn-compartir" id="btnCompartirWA">
-        <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Compartir por WhatsApp
-      </button>
-      <button class="btn-nuevo-pedido" onclick="nuevoPedido()">Hacer otro pedido</button>
-    </div>
-  </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  const SUPA_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
+  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
+  let cafe = null;
+  let menu = [];
+  let cantidades = {};
+  let tecladoProdId = null;
+  let tecladoVal = '';
+  let pedidoActual = null;
 
-  <script>
-    // ── CONFIGURACIÓN SUPABASE ──
-    // ⚠️ Reemplaza con tus credenciales reales de Supabase
-    const SUPABASE_URL = 'TU_SUPABASE_URL';
-    const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // ── INIT ──
+  async function init() {
+    const slug = new URLSearchParams(window.location.search).get('cafe');
+    if (!slug) { mostrarError('Link inválido', 'No se especificó ninguna cafetería.<br>Contacta a Panfitrión para obtener tu link.'); return; }
 
-    // ── ESTADO ──
-    let cafeteriaActual = null;
-    let productosMenu = [];
-    let cantidades = {};
-    let tecladoProductoActual = null;
-    let valorTeclado = '';
-    let pedidoGuardado = null;
+    const { data, error } = await sb.from('cafeterias').select('*').eq('slug', slug).single();
+    if (error || !data) { mostrarError('Cafetería no encontrada', `No existe una cafetería con el link <b>${slug}</b>.<br>Contacta a Panfitrión.`); return; }
 
-    // ── INICIALIZAR ──
-    async function init() {
-      const params = new URLSearchParams(window.location.search);
-      const slug = params.get('cafe');
+    cafe = data;
+    menu = data.menu || [];
+    menu.forEach(p => cantidades[p.id] = 0);
+    document.getElementById('cafeTitulo').textContent = data.nombre;
+    document.title = data.nombre + ' — Panfitrión';
+    renderMenu();
+  }
 
-      if (!slug) {
-        mostrarNotFound('No se especificó ninguna cafetería.');
-        return;
-      }
+  // ── RENDER ──
+  function renderMenu() {
+    const el = document.getElementById('contenido');
+    if (!menu.length) { el.innerHTML = '<div class="estado"><p>Esta cafetería aún no tiene productos.</p></div>'; return; }
 
-      try {
-        const { data, error } = await supabase
-          .from('cafeterias')
-          .select('*')
-          .eq('slug', slug)
-          .single();
+    const cats = [...new Set(menu.map(p => p.categoria || 'General'))];
+    let html = '';
 
-        if (error || !data) {
-          mostrarNotFound(`No se encontró la cafetería "${slug}".`);
-          return;
-        }
-
-        cafeteriaActual = data;
-        productosMenu = data.menu || [];
-        cantidades = {};
-        productosMenu.forEach(p => cantidades[p.id] = 0);
-
-        document.getElementById('cafeNombre').textContent = data.nombre;
-        document.getElementById('cafeSubtitulo').textContent = 'Haz tu pedido del día';
-        document.title = `${data.nombre} — Panfitrión`;
-
-        renderizarMenu();
-      } catch (e) {
-        mostrarNotFound('Error al cargar el menú. Intenta de nuevo.');
-        console.error(e);
-      }
+    if (cats.length > 1) {
+      html += '<div class="cats">';
+      cats.forEach((c, i) => {
+        html += `<button class="cat-btn ${i===0?'on':''}" data-cat="${c}">${c}</button>`;
+      });
+      html += '</div>';
     }
 
-    // ── RENDERIZAR MENÚ ──
-    function renderizarMenu() {
-      const contenedor = document.getElementById('contenidoPrincipal');
-      contenedor.innerHTML = '';
-
-      // Agrupar por categoría
-      const categorias = {};
-      productosMenu.forEach(p => {
-        const cat = p.categoria || 'General';
-        if (!categorias[cat]) categorias[cat] = [];
-        categorias[cat].push(p);
-      });
-
-      const cats = Object.keys(categorias);
-
-      // Navegación de categorías si hay más de una
-      if (cats.length > 1) {
-        const nav = document.createElement('div');
-        nav.className = 'categorias-nav';
-        cats.forEach((cat, i) => {
-          const pill = document.createElement('button');
-          pill.className = 'cat-pill' + (i === 0 ? ' activa' : '');
-          pill.textContent = cat;
-          pill.onclick = () => {
-            document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('activa'));
-            pill.classList.add('activa');
-            document.getElementById('sec-' + cat)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          };
-          nav.appendChild(pill);
-        });
-        contenedor.appendChild(nav);
-      }
-
-      // Secciones por categoría
-      cats.forEach(cat => {
-        const sec = document.createElement('div');
-        sec.className = 'seccion';
-        sec.id = 'sec-' + cat;
-
-        const titulo = document.createElement('div');
-        titulo.className = 'seccion-titulo';
-        titulo.textContent = cat;
-        sec.appendChild(titulo);
-
-        categorias[cat].forEach(p => {
-          const div = document.createElement('div');
-          div.className = 'producto';
-          div.innerHTML = `
-            <div class="producto-info">
-              <div class="producto-nombre">${p.nombre}</div>
-              ${p.precio ? `<div class="producto-precio">$${p.precio}</div>` : ''}
+    cats.forEach(cat => {
+      html += `<div class="seccion" id="cat-${cat}">`;
+      html += `<div class="sec-titulo">${cat}</div>`;
+      menu.filter(p => (p.categoria||'General') === cat).forEach(p => {
+        html += `
+          <div class="prod" id="prod-${p.id}">
+            <div class="prod-info">
+              <div class="prod-nombre">${p.nombre}</div>
+              ${p.precio ? `<div class="prod-precio">$${p.precio}</div>` : ''}
             </div>
-            <div class="cantidad-control">
-              <button class="btn-cant" onclick="decrementar('${p.id}')">−</button>
-              <div class="cant-display" id="cant-${p.id}" onclick="abrirTeclado('${p.id}', '${p.nombre}')">0</div>
-              <button class="btn-cant" onclick="incrementar('${p.id}')">+</button>
+            <div class="cant-ctrl">
+              <button class="cant-btn" data-action="dec" data-id="${p.id}">−</button>
+              <div class="cant-val" id="v-${p.id}" data-id="${p.id}">0</div>
+              <button class="cant-btn" data-action="inc" data-id="${p.id}">+</button>
             </div>
-          `;
-          sec.appendChild(div);
-        });
-
-        contenedor.appendChild(sec);
+          </div>`;
       });
+      html += `</div>`;
+    });
 
-      // Campo de notas
-      const notasSec = document.createElement('div');
-      notasSec.className = 'notas-seccion';
-      notasSec.innerHTML = `
-        <label class="notas-label" for="notasInput">Notas</label>
-        <textarea class="notas-input" id="notasInput" placeholder="Alergias, preferencias, indicaciones especiales..."></textarea>
-      `;
-      contenedor.appendChild(notasSec);
-    }
+    html += '<div class="notas-wrap"><label class="notas-label">Notas</label><textarea class="notas-ta" id="notas" placeholder="Alergias, preferencias, indicaciones…"></textarea></div>';
+    el.innerHTML = html;
 
-    // ── CONTROLES DE CANTIDAD ──
-    function incrementar(id) {
-      cantidades[id] = Math.min((cantidades[id] || 0) + 1, 99);
-      actualizarDisplay(id);
-    }
-
-    function decrementar(id) {
-      cantidades[id] = Math.max((cantidades[id] || 0) - 1, 0);
-      actualizarDisplay(id);
-    }
-
-    function actualizarDisplay(id) {
-      const el = document.getElementById('cant-' + id);
-      if (!el) return;
-      const val = cantidades[id] || 0;
-      el.textContent = val;
-      el.classList.toggle('activo', val > 0);
-      actualizarResumen();
-    }
-
-    function actualizarResumen() {
-      const total = Object.values(cantidades).reduce((a, b) => a + b, 0);
-      const bar = document.getElementById('resumenBar');
-      const count = document.getElementById('resumenCount');
-
-      if (total > 0) {
-        bar.classList.add('visible');
-        count.textContent = `${total} ${total === 1 ? 'producto' : 'productos'}`;
-      } else {
-        bar.classList.remove('visible');
-      }
-    }
-
-    // ── TECLADO NUMÉRICO ──
-    function abrirTeclado(id, nombre) {
-      tecladoProductoActual = id;
-      valorTeclado = cantidades[id] > 0 ? String(cantidades[id]) : '';
-      document.getElementById('tecladoNombreProducto').textContent = nombre;
-      document.getElementById('tecladoDisplay').textContent = valorTeclado || '0';
-      document.getElementById('tecladoOverlay').classList.add('visible');
-    }
-
-    function cerrarTeclado(e) {
-      if (e && e.target !== document.getElementById('tecladoOverlay')) return;
-      document.getElementById('tecladoOverlay').classList.remove('visible');
-      tecladoProductoActual = null;
-      valorTeclado = '';
-    }
-
-    function teclaPress(val) {
-      if (!tecladoProductoActual && val !== 'ok') return;
-
-      if (val === 'borrar') {
-        valorTeclado = valorTeclado.slice(0, -1);
-      } else if (val === 'ok') {
-        if (tecladoProductoActual) {
-          cantidades[tecladoProductoActual] = parseInt(valorTeclado) || 0;
-          actualizarDisplay(tecladoProductoActual);
-        }
-        document.getElementById('tecladoOverlay').classList.remove('visible');
-        tecladoProductoActual = null;
-        valorTeclado = '';
-        return;
-      } else {
-        if (valorTeclado.length >= 2) return; // máx 99
-        valorTeclado += val;
-        if (valorTeclado.startsWith('0') && valorTeclado.length > 1) {
-          valorTeclado = valorTeclado.slice(1);
-        }
-      }
-
-      document.getElementById('tecladoDisplay').textContent = valorTeclado || '0';
-    }
-
-    // ── ENVIAR PEDIDO ──
-    async function enviarPedido() {
-      const total = Object.values(cantidades).reduce((a, b) => a + b, 0);
-      if (total === 0) {
-        mostrarToast('Agrega al menos un producto');
-        return;
-      }
-
-      const btn = document.getElementById('btnEnviar');
-      btn.disabled = true;
-      btn.textContent = 'Guardando...';
-
-      const productosSeleccionados = productosMenu
-        .filter(p => (cantidades[p.id] || 0) > 0)
-        .map(p => ({ id: p.id, nombre: p.nombre, cantidad: cantidades[p.id], precio: p.precio || null }));
-
-      const notas = document.getElementById('notasInput')?.value || '';
-
-      try {
-        const { data, error } = await supabase
-          .from('pedidos')
-          .insert([{
-            cafeteria_id: cafeteriaActual.id,
-            cafeteria_nombre: cafeteriaActual.nombre,
-            productos: productosSeleccionados,
-            notas: notas,
-            fecha: new Date().toISOString()
-          }])
-          .select()
-          .single();
-
-        if (error) throw error;
-
-        pedidoGuardado = { ...data, productosSeleccionados, notas };
-        mostrarModalExito(productosSeleccionados, notas);
-
-      } catch (e) {
-        console.error(e);
-        mostrarToast('Error al guardar. Intenta de nuevo.');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Enviar pedido';
-      }
-    }
-
-    // ── MODAL ÉXITO ──
-    function mostrarModalExito(productos, notas) {
-      document.getElementById('modalExito').classList.add('visible');
-
-      const btnWA = document.getElementById('btnCompartirWA');
-      btnWA.onclick = () => compartirWhatsApp(productos, notas);
-    }
-
-    function compartirWhatsApp(productos, notas) {
-      const fecha = new Date().toLocaleDateString('es-MX', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    // Eventos categorías
+    el.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        el.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        document.getElementById('cat-' + btn.dataset.cat)?.scrollIntoView({ behavior:'smooth', block:'start' });
       });
+    });
 
-      let mensaje = `🥖 *Pedido Panfitrión*\n`;
-      mensaje += `📍 *${cafeteriaActual.nombre}*\n`;
-      mensaje += `📅 ${fecha}\n\n`;
-      mensaje += `*Productos:*\n`;
-
-      productos.forEach(p => {
-        mensaje += `• ${p.nombre}: *${p.cantidad}*`;
-        if (p.precio) mensaje += ` ($${(p.precio * p.cantidad).toFixed(2)})`;
-        mensaje += '\n';
+    // Eventos botones +/-
+    el.querySelectorAll('.cant-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        if (btn.dataset.action === 'inc') cantidades[id] = Math.min((cantidades[id]||0)+1, 99);
+        else cantidades[id] = Math.max((cantidades[id]||0)-1, 0);
+        actualizarDisplay(id);
       });
+    });
 
-      if (notas.trim()) {
-        mensaje += `\n📝 *Notas:* ${notas.trim()}`;
+    // Abrir teclado al tocar el número
+    el.querySelectorAll('.cant-val').forEach(el2 => {
+      el2.addEventListener('click', () => abrirTeclado(el2.dataset.id));
+    });
+  }
+
+  function actualizarDisplay(id) {
+    const el = document.getElementById('v-' + id);
+    if (!el) return;
+    const v = cantidades[id] || 0;
+    el.textContent = v;
+    el.classList.toggle('on', v > 0);
+    actualizarBar();
+  }
+
+  function actualizarBar() {
+    const total = Object.values(cantidades).reduce((a,b)=>a+b, 0);
+    const bar = document.getElementById('bar');
+    document.getElementById('barCount').textContent = total + (total===1?' producto':' productos');
+    bar.classList.toggle('show', total > 0);
+  }
+
+  // ── TECLADO ──
+  function abrirTeclado(id) {
+    tecladoProdId = id;
+    tecladoVal = cantidades[id] > 0 ? String(cantidades[id]) : '';
+    const prod = menu.find(p => p.id === id);
+    document.getElementById('tecladoNombre').textContent = prod ? prod.nombre : '';
+    document.getElementById('tecladoDisplay').textContent = tecladoVal || '0';
+    document.getElementById('tecladoBg').classList.add('show');
+  }
+
+  document.getElementById('tecladoBg').addEventListener('click', e => {
+    if (e.target === document.getElementById('tecladoBg')) cerrarTeclado();
+  });
+
+  document.getElementById('tecladoPanel').addEventListener('click', e => {
+    const k = e.target.closest('.tecla')?.dataset.k;
+    if (!k) return;
+    if (k === 'del') {
+      tecladoVal = tecladoVal.slice(0,-1);
+    } else if (k === 'ok') {
+      if (tecladoProdId !== null) {
+        cantidades[tecladoProdId] = parseInt(tecladoVal) || 0;
+        actualizarDisplay(tecladoProdId);
       }
-
-      const texto = encodeURIComponent(mensaje);
-
-      // Web Share API — abre hoja nativa con opción de elegir contacto de WhatsApp
-      if (navigator.share) {
-        navigator.share({
-          title: 'Pedido Panfitrión',
-          text: mensaje
-        }).catch(() => {
-          // Si cancela, no hacer nada
-        });
-      } else {
-        // Fallback: abrir WhatsApp sin número (el usuario elige el contacto)
-        window.open(`https://wa.me/?text=${texto}`, '_blank');
-      }
+      cerrarTeclado(); return;
+    } else {
+      if (tecladoVal.length >= 2) return;
+      tecladoVal += k;
+      if (tecladoVal.startsWith('0') && tecladoVal.length > 1) tecladoVal = tecladoVal.slice(1);
     }
+    document.getElementById('tecladoDisplay').textContent = tecladoVal || '0';
+  });
 
-    function nuevoPedido() {
-      document.getElementById('modalExito').classList.remove('visible');
-      productosMenu.forEach(p => cantidades[p.id] = 0);
-      productosMenu.forEach(p => actualizarDisplay(p.id));
-      if (document.getElementById('notasInput')) {
-        document.getElementById('notasInput').value = '';
-      }
-      actualizarResumen();
+  function cerrarTeclado() {
+    document.getElementById('tecladoBg').classList.remove('show');
+    tecladoProdId = null; tecladoVal = '';
+  }
+
+  // ── ENVIAR ──
+  document.getElementById('btnEnviar').addEventListener('click', async () => {
+    const seleccionados = menu.filter(p => (cantidades[p.id]||0) > 0)
+      .map(p => ({ id:p.id, nombre:p.nombre, cantidad:cantidades[p.id], precio:p.precio||null }));
+
+    if (!seleccionados.length) { toast('Agrega al menos un producto'); return; }
+
+    const btn = document.getElementById('btnEnviar');
+    btn.disabled = true; btn.textContent = 'Guardando…';
+
+    const notas = document.getElementById('notas')?.value || '';
+
+    try {
+      const { data, error } = await sb.from('pedidos').insert([{
+        cafeteria_id: cafe.id,
+        cafeteria_nombre: cafe.nombre,
+        productos: seleccionados,
+        notas,
+        fecha: new Date().toISOString()
+      }]).select().single();
+
+      if (error) throw error;
+      pedidoActual = { productos: seleccionados, notas, cafeteria: cafe.nombre };
+      document.getElementById('modalBg').classList.add('show');
+
+    } catch(e) {
+      console.error(e);
+      toast('Error al guardar. Intenta de nuevo.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enviar pedido';
     }
+  });
 
-    // ── UTILS ──
-    function mostrarToast(msg) {
-      const t = document.getElementById('toast');
-      t.textContent = msg;
-      t.classList.add('visible');
-      setTimeout(() => t.classList.remove('visible'), 3000);
+  // ── WHATSAPP ──
+  document.getElementById('btnWA').addEventListener('click', () => {
+    if (!pedidoActual) return;
+    const fecha = new Date().toLocaleDateString('es-MX', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    let msg = `🥖 *Pedido Panfitrión*\n📍 *${pedidoActual.cafeteria}*\n📅 ${fecha}\n\n*Productos:*\n`;
+    pedidoActual.productos.forEach(p => { msg += `• ${p.nombre}: *${p.cantidad}*\n`; });
+    if (pedidoActual.notas.trim()) msg += `\n📝 *Notas:* ${pedidoActual.notas.trim()}`;
+
+    if (navigator.share) {
+      navigator.share({ title:'Pedido Panfitrión', text: msg }).catch(()=>{});
+    } else {
+      window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
     }
+  });
 
-    function mostrarNotFound(msg) {
-      document.getElementById('cafeNombre').textContent = 'Cafetería no encontrada';
-      document.getElementById('cafeSubtitulo').textContent = '';
-      document.getElementById('contenidoPrincipal').innerHTML = `
-        <div class="not-found">
-          <div class="not-found-icon">🍞</div>
-          <h2>Link inválido</h2>
-          <p>${msg}<br>Contacta a Panfitrión para obtener tu link correcto.</p>
-        </div>
-      `;
-    }
+  document.getElementById('btnOtroPedido').addEventListener('click', () => {
+    document.getElementById('modalBg').classList.remove('show');
+    menu.forEach(p => { cantidades[p.id] = 0; actualizarDisplay(p.id); });
+    if (document.getElementById('notas')) document.getElementById('notas').value = '';
+    pedidoActual = null;
+  });
 
-    // ── INICIAR ──
-    init();
+  // ── TOAST ──
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 3000);
+  }
 
-  </script>
+  function mostrarError(titulo, texto) {
+    document.getElementById('cafeTitulo').textContent = titulo;
+    document.getElementById('contenido').innerHTML = `
+      <div class="estado">
+        <div class="error-icon">🍞</div>
+        <div class="error-titulo">${titulo}</div>
+        <div class="error-texto">${texto}</div>
+      </div>`;
+  }
+
+  init();
+</script>
 </body>
 </html>
