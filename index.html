@@ -4,325 +4,817 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Panfitrión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
+    /* ── Variables ── */
     :root {
-      --negro: #0a0a0a; --dorado: #c9a84c; --dorado-osc: #9a7a2e;
-      --blanco: #f5f2eb; --gris: #1a1a1a; --gris2: #242424; --tenue: #b0a070;
+      --negro:   #0a0a0a;
+      --dorado:  #c9a84c;
+      --dorado2: #9a7a2e;
+      --blanco:  #f5f2eb;
+      --gris1:   #1a1a1a;
+      --gris2:   #242424;
+      --tenue:   #b0a070;
     }
-    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-    body { background:var(--negro); color:var(--blanco); font-family:'DM Sans',sans-serif; min-height:100vh; }
-
-    /* HEADER */
-    .header { background:var(--negro); border-bottom:1px solid rgba(201,168,76,0.18); padding:18px 20px 14px; position:sticky; top:0; z-index:50; }
-    .header-marca { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
-    .marca-circulo { width:34px; height:34px; border-radius:50%; border:1.5px solid var(--dorado); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
-    .marca-circulo img { width:26px; height:26px; object-fit:contain; display:none; }
-    .marca-letra { font-family:'Playfair Display',serif; font-size:14px; font-weight:900; color:var(--dorado); }
-    .marca-nombre { font-family:'Playfair Display',serif; font-size:17px; font-weight:700; letter-spacing:0.03em; }
-    .marca-nombre span { color:var(--dorado); }
-    .cafe-titulo { font-family:'Playfair Display',serif; font-size:24px; font-weight:900; line-height:1.1; }
-    .cafe-sub { font-size:11px; color:var(--tenue); letter-spacing:0.13em; text-transform:uppercase; margin-top:3px; }
-
-    /* ESTADOS */
-    .estado { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:55vh; gap:14px; padding:40px 24px; text-align:center; }
-    .spinner { width:38px; height:38px; border:2px solid rgba(201,168,76,0.15); border-top-color:var(--dorado); border-radius:50%; animation:spin .8s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
-    .estado p { color:var(--tenue); font-size:14px; }
-    .error-icon { font-size:44px; }
-    .error-titulo { font-family:'Playfair Display',serif; font-size:20px; }
-    .error-texto { font-size:13px; color:var(--tenue); line-height:1.6; }
-
-    /* LISTA DE PRODUCTOS (sin categorías ni precios) */
-    .lista-prods { padding:0 20px; }
-    .prod { display:flex; align-items:center; justify-content:space-between; padding:14px 0; border-bottom:1px solid rgba(255,255,255,0.05); gap:14px; }
-    .prod:last-child { border-bottom:none; }
-    .prod-nombre { font-size:15px; font-weight:500; flex:1; line-height:1.3; }
-
-    /* CONTROL CANTIDAD */
-    .cant-ctrl { display:flex; align-items:center; background:var(--gris); border-radius:10px; border:1px solid rgba(201,168,76,0.12); overflow:hidden; flex-shrink:0; }
-    .cant-btn { width:38px; height:38px; background:transparent; border:none; color:var(--dorado); font-size:22px; font-weight:300; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .cant-btn:active { background:rgba(201,168,76,0.12); }
-    .cant-val { min-width:30px; text-align:center; font-size:15px; font-weight:600; color:var(--blanco); cursor:pointer; }
-    .cant-val.on { color:var(--dorado); }
-
-    /* TECLADO */
-    .teclado-bg { position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:200; display:none; align-items:flex-end; }
-    .teclado-bg.show { display:flex; }
-    .teclado-panel { width:100%; background:var(--gris2); border-radius:20px 20px 0 0; padding:18px 18px 32px; animation:subir .22s ease; }
-    @keyframes subir { from { transform:translateY(100%); } }
-    .teclado-nombre { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; margin-bottom:14px; }
-    .teclado-display { background:var(--negro); border-radius:12px; height:72px; display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:42px; font-weight:700; color:var(--dorado); margin-bottom:14px; letter-spacing:-1px; }
-    .teclado-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; }
-    .tecla { background:var(--gris); border:none; border-radius:12px; height:58px; font-size:22px; font-weight:500; color:var(--blanco); cursor:pointer; font-family:'DM Sans',sans-serif; transition:transform .1s; }
-    .tecla:active { transform:scale(.95); background:rgba(201,168,76,0.18); }
-    .tecla.del { font-size:17px; color:var(--tenue); }
-    .tecla.ok { background:var(--dorado); color:var(--negro); font-weight:700; font-size:15px; }
-    .tecla.ok:active { background:var(--dorado-osc); }
-
-    /* NOTAS */
-    .notas-wrap { padding:18px 20px 0; }
-    .notas-label { font-size:10px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--dorado); display:block; margin-bottom:8px; }
-    .notas-ta { width:100%; background:var(--gris); border:1px solid rgba(201,168,76,0.15); border-radius:12px; padding:12px 14px; color:var(--blanco); font-family:'DM Sans',sans-serif; font-size:14px; resize:none; outline:none; min-height:72px; }
-    .notas-ta::placeholder { color:rgba(176,160,112,0.4); }
-    .notas-ta:focus { border-color:rgba(201,168,76,0.4); }
-
-    /* BARRA INFERIOR */
-    .bar { position:fixed; bottom:0; left:0; right:0; background:var(--gris2); border-top:1px solid rgba(201,168,76,0.2); padding:10px 20px 26px; z-index:100; transform:translateY(100%); transition:transform .28s ease; }
-    .bar.show { transform:translateY(0); }
-    .bar-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-    .bar-label { font-size:12px; color:var(--tenue); }
-    .bar-count { font-size:14px; font-weight:600; color:var(--dorado); }
-    .btn-enviar { width:100%; background:var(--dorado); border:none; border-radius:13px; padding:15px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:var(--negro); cursor:pointer; }
-    .btn-enviar:active { opacity:.85; }
-    .btn-enviar:disabled { opacity:.4; }
-    .espacio { height:110px; }
-
-    /* MODAL ÉXITO */
-    .modal-bg { position:fixed; inset:0; background:rgba(0,0,0,0.82); z-index:300; display:none; align-items:center; justify-content:center; padding:24px; }
-    .modal-bg.show { display:flex; }
-    .modal-card { background:var(--gris2); border-radius:20px; padding:30px 26px; text-align:center; border:1px solid rgba(201,168,76,0.25); max-width:340px; width:100%; animation:aparecer .28s ease; }
-    @keyframes aparecer { from { transform:scale(.9); opacity:0; } }
-    .modal-icon { font-size:48px; margin-bottom:14px; }
-    .modal-titulo { font-family:'Playfair Display',serif; font-size:20px; font-weight:700; margin-bottom:8px; }
-    .modal-texto { font-size:13px; color:var(--tenue); line-height:1.6; margin-bottom:22px; }
-    .btn-wa { width:100%; background:#25D366; border:none; border-radius:13px; padding:15px; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:9px; }
-    .btn-wa:active { opacity:.85; }
-    .btn-otro { width:100%; background:transparent; border:1px solid rgba(201,168,76,0.2); border-radius:13px; padding:13px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--tenue); cursor:pointer; }
-
-    /* TOAST */
-    .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-70px); background:var(--gris2); color:var(--blanco); padding:10px 18px; border-radius:10px; font-size:13px; z-index:400; transition:transform .28s ease; border:1px solid rgba(201,168,76,0.18); white-space:nowrap; }
-    .toast.show { transform:translateX(-50%) translateY(0); }
+ 
+    /* ── Reset ── */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+ 
+    body {
+      background: var(--negro);
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+ 
+    /* ── Header ── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--negro);
+      border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+      padding: 18px 20px 14px;
+    }
+ 
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+ 
+    .marca-circulo {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid var(--dorado);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+ 
+    .marca-circulo img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+      display: none;
+    }
+ 
+    .marca-letra {
+      font-family: 'Playfair Display', serif;
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--dorado);
+    }
+ 
+    .marca-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+ 
+    .marca-nombre span { color: var(--dorado); }
+ 
+    .cafe-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+ 
+    .cafe-sub {
+      font-size: 11px;
+      color: var(--tenue);
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+ 
+    /* ── Estado (loading / error) ── */
+    .estado {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 55vh;
+      gap: 14px;
+      padding: 40px 24px;
+      text-align: center;
+    }
+ 
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 2px solid rgba(201, 168, 76, 0.15);
+      border-top-color: var(--dorado);
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+    }
+ 
+    @keyframes girar { to { transform: rotate(360deg); } }
+ 
+    .estado p       { color: var(--tenue); font-size: 14px; }
+    .estado h2      { font-family: 'Playfair Display', serif; font-size: 20px; }
+    .estado .icono  { font-size: 44px; }
+ 
+    /* ── Lista de productos ── */
+    .lista {
+      padding: 0 20px;
+    }
+ 
+    .producto {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+ 
+    .producto:last-child { border-bottom: none; }
+ 
+    .producto-nombre {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+ 
+    /* ── Control de cantidad ── */
+    .cantidad {
+      display: flex;
+      align-items: center;
+      background: var(--gris1);
+      border: 1px solid rgba(201, 168, 76, 0.12);
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+ 
+    .cantidad button {
+      width: 38px;
+      height: 38px;
+      background: transparent;
+      border: none;
+      color: var(--dorado);
+      font-size: 22px;
+      font-weight: 300;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+ 
+    .cantidad button:active { background: rgba(201, 168, 76, 0.12); }
+ 
+    .cantidad-valor {
+      min-width: 30px;
+      text-align: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--blanco);
+      cursor: pointer;
+    }
+ 
+    .cantidad-valor.activo { color: var(--dorado); }
+ 
+    /* ── Notas ── */
+    .notas {
+      padding: 18px 20px 0;
+    }
+ 
+    .notas label {
+      display: block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--dorado);
+      margin-bottom: 8px;
+    }
+ 
+    .notas textarea {
+      width: 100%;
+      background: var(--gris1);
+      border: 1px solid rgba(201, 168, 76, 0.15);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      resize: none;
+      outline: none;
+      min-height: 72px;
+    }
+ 
+    .notas textarea::placeholder { color: rgba(176, 160, 112, 0.4); }
+    .notas textarea:focus { border-color: rgba(201, 168, 76, 0.4); }
+ 
+    /* ── Espacio inferior (para que la barra no tape contenido) ── */
+    .espacio-inferior { height: 110px; }
+ 
+    /* ── Barra de envío ── */
+    .barra-envio {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: var(--gris2);
+      border-top: 1px solid rgba(201, 168, 76, 0.2);
+      padding: 10px 20px 26px;
+      transform: translateY(100%);
+      transition: transform 0.28s ease;
+    }
+ 
+    .barra-envio.visible { transform: translateY(0); }
+ 
+    .barra-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+ 
+    .barra-label { font-size: 12px; color: var(--tenue); }
+    .barra-total { font-size: 14px; font-weight: 600; color: var(--dorado); }
+ 
+    .btn-enviar {
+      width: 100%;
+      background: var(--dorado);
+      border: none;
+      border-radius: 13px;
+      padding: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--negro);
+      cursor: pointer;
+    }
+ 
+    .btn-enviar:active   { opacity: 0.85; }
+    .btn-enviar:disabled { opacity: 0.4; }
+ 
+    /* ── Teclado numérico ── */
+    .teclado-fondo {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: flex-end;
+    }
+ 
+    .teclado-fondo.visible { display: flex; }
+ 
+    .teclado {
+      width: 100%;
+      background: var(--gris2);
+      border-radius: 20px 20px 0 0;
+      padding: 18px 18px 32px;
+      animation: subir 0.22s ease;
+    }
+ 
+    @keyframes subir { from { transform: translateY(100%); } }
+ 
+    .teclado-producto {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+ 
+    .teclado-pantalla {
+      background: var(--negro);
+      border-radius: 12px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 700;
+      color: var(--dorado);
+      margin-bottom: 14px;
+      letter-spacing: -1px;
+    }
+ 
+    .teclado-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+ 
+    .tecla {
+      background: var(--gris1);
+      border: none;
+      border-radius: 12px;
+      height: 58px;
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--blanco);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+    }
+ 
+    .tecla:active { background: rgba(201, 168, 76, 0.18); transform: scale(0.95); }
+ 
+    .tecla.borrar { font-size: 17px; color: var(--tenue); }
+ 
+    .tecla.ok {
+      background: var(--dorado);
+      color: var(--negro);
+      font-weight: 700;
+      font-size: 15px;
+    }
+ 
+    .tecla.ok:active { background: var(--dorado2); }
+ 
+    /* ── Modal de éxito ── */
+    .modal-fondo {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(0, 0, 0, 0.82);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+ 
+    .modal-fondo.visible { display: flex; }
+ 
+    .modal {
+      background: var(--gris2);
+      border-radius: 20px;
+      border: 1px solid rgba(201, 168, 76, 0.25);
+      padding: 30px 26px;
+      text-align: center;
+      max-width: 340px;
+      width: 100%;
+      animation: aparecer 0.28s ease;
+    }
+ 
+    @keyframes aparecer { from { transform: scale(0.9); opacity: 0; } }
+ 
+    .modal-icono  { font-size: 48px; margin-bottom: 14px; }
+ 
+    .modal-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+ 
+    .modal-texto {
+      font-size: 13px;
+      color: var(--tenue);
+      line-height: 1.6;
+      margin-bottom: 22px;
+    }
+ 
+    .btn-whatsapp {
+      width: 100%;
+      background: #25D366;
+      border: none;
+      border-radius: 13px;
+      padding: 15px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-bottom: 9px;
+    }
+ 
+    .btn-whatsapp:active { opacity: 0.85; }
+ 
+    .btn-otro-pedido {
+      width: 100%;
+      background: transparent;
+      border: 1px solid rgba(201, 168, 76, 0.2);
+      border-radius: 13px;
+      padding: 13px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      color: var(--tenue);
+      cursor: pointer;
+    }
+ 
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      z-index: 400;
+      transform: translateX(-50%) translateY(-70px);
+      background: var(--gris2);
+      color: var(--blanco);
+      border: 1px solid rgba(201, 168, 76, 0.18);
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: transform 0.28s ease;
+    }
+ 
+    .toast.visible { transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
-
-<div class="header">
-  <div class="header-marca">
-    <div class="marca-circulo">
-      <img id="logoImg" src="logo.png" alt="P" onload="this.style.display='block';document.getElementById('marcaLetra').style.display='none'" />
-      <span class="marca-letra" id="marcaLetra">P</span>
+ 
+  <!-- Header -->
+  <header class="header">
+    <div class="marca">
+      <div class="marca-circulo">
+        <img
+          id="logoImg"
+          src="logo.png"
+          alt="Panfitrión"
+          onload="this.style.display='block'; document.getElementById('marcaLetra').style.display='none'"
+        />
+        <span class="marca-letra" id="marcaLetra">P</span>
+      </div>
+      <span class="marca-nombre">Panfi<span>trión</span></span>
     </div>
-    <span class="marca-nombre">Panfi<span>trión</span></span>
+    <div class="cafe-nombre" id="cafeNombre">Cargando…</div>
+    <div class="cafe-sub">Haz tu pedido del día</div>
+  </header>
+ 
+  <!-- Contenido dinámico -->
+  <main id="contenido">
+    <div class="estado">
+      <div class="spinner"></div>
+      <p>Cargando menú…</p>
+    </div>
+  </main>
+ 
+  <div class="espacio-inferior"></div>
+ 
+  <!-- Barra de envío -->
+  <div class="barra-envio" id="barraEnvio">
+    <div class="barra-info">
+      <span class="barra-label">Tu pedido</span>
+      <span class="barra-total" id="barraTotalTexto">0 productos</span>
+    </div>
+    <button class="btn-enviar" id="btnEnviar">Enviar pedido</button>
   </div>
-  <div class="cafe-titulo" id="cafeTitulo">Cargando…</div>
-  <div class="cafe-sub">Haz tu pedido del día</div>
-</div>
-
-<div id="contenido">
-  <div class="estado"><div class="spinner"></div><p>Cargando menú…</p></div>
-</div>
-
-<div class="espacio"></div>
-
-<div class="bar" id="bar">
-  <div class="bar-top">
-    <span class="bar-label">Tu pedido</span>
-    <span class="bar-count" id="barCount">0 productos</span>
-  </div>
-  <button class="btn-enviar" id="btnEnviar">Enviar pedido</button>
-</div>
-
-<!-- TECLADO -->
-<div class="teclado-bg" id="tecladoBg">
-  <div class="teclado-panel" id="tecladoPanel">
-    <div class="teclado-nombre" id="tecladoNombre"></div>
-    <div class="teclado-display" id="tecladoDisplay">0</div>
-    <div class="teclado-grid">
-      <button class="tecla" data-k="7">7</button>
-      <button class="tecla" data-k="8">8</button>
-      <button class="tecla" data-k="9">9</button>
-      <button class="tecla" data-k="4">4</button>
-      <button class="tecla" data-k="5">5</button>
-      <button class="tecla" data-k="6">6</button>
-      <button class="tecla" data-k="1">1</button>
-      <button class="tecla" data-k="2">2</button>
-      <button class="tecla" data-k="3">3</button>
-      <button class="tecla del" data-k="del">⌫</button>
-      <button class="tecla" data-k="0">0</button>
-      <button class="tecla ok" data-k="ok">OK</button>
+ 
+  <!-- Teclado numérico -->
+  <div class="teclado-fondo" id="tecladoFondo">
+    <div class="teclado">
+      <div class="teclado-producto" id="tecladoProducto"></div>
+      <div class="teclado-pantalla" id="tecladoPantalla">0</div>
+      <div class="teclado-grid">
+        <button class="tecla" data-k="7">7</button>
+        <button class="tecla" data-k="8">8</button>
+        <button class="tecla" data-k="9">9</button>
+        <button class="tecla" data-k="4">4</button>
+        <button class="tecla" data-k="5">5</button>
+        <button class="tecla" data-k="6">6</button>
+        <button class="tecla" data-k="1">1</button>
+        <button class="tecla" data-k="2">2</button>
+        <button class="tecla" data-k="3">3</button>
+        <button class="tecla borrar" data-k="del">⌫</button>
+        <button class="tecla" data-k="0">0</button>
+        <button class="tecla ok" data-k="ok">OK</button>
+      </div>
     </div>
   </div>
-</div>
-
-<!-- MODAL ÉXITO -->
-<div class="modal-bg" id="modalBg">
-  <div class="modal-card">
-    <div class="modal-icon">✅</div>
-    <div class="modal-titulo">¡Pedido registrado!</div>
-    <div class="modal-texto">Tu pedido quedó guardado. Compártelo por WhatsApp para confirmarlo con Panfitrión.</div>
-    <button class="btn-wa" id="btnWA">
-      <svg width="19" height="19" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      Compartir por WhatsApp
-    </button>
-    <button class="btn-otro" id="btnOtroPedido">Hacer otro pedido</button>
+ 
+  <!-- Modal de éxito -->
+  <div class="modal-fondo" id="modalFondo">
+    <div class="modal">
+      <div class="modal-icono">✅</div>
+      <div class="modal-titulo">¡Pedido registrado!</div>
+      <div class="modal-texto">
+        Tu pedido quedó guardado. Compártelo por WhatsApp para confirmarlo con Panfitrión.
+      </div>
+      <button class="btn-whatsapp" id="btnWhatsApp">
+        <svg width="19" height="19" fill="white" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+        Compartir por WhatsApp
+      </button>
+      <button class="btn-otro-pedido" id="btnOtroPedido">Hacer otro pedido</button>
+    </div>
   </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-  const SUPA_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
-  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
-  const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-
-  let cafe = null;
-  let menu = [];
-  let cantidades = {};
-  let tecladoProdId = null;
-  let tecladoVal = '';
-  let pedidoActual = null;
-
-  async function init() {
-    const slug = new URLSearchParams(window.location.search).get('cafe');
-    if (!slug) { mostrarError('Link inválido', 'No se especificó ninguna cafetería.<br>Contacta a Panfitrión para obtener tu link.'); return; }
-    const { data, error } = await sb.from('cafeterias').select('*').eq('slug', slug).single();
-    if (error || !data) { mostrarError('Cafetería no encontrada', 'Contacta a Panfitrión para obtener tu link correcto.'); return; }
-    cafe = data;
-    menu = data.menu || [];
-    menu.forEach(p => cantidades[p.id] = 0);
-    document.getElementById('cafeTitulo').textContent = data.nombre;
-    document.title = data.nombre + ' — Panfitrión';
-    renderMenu();
-  }
-
-  function renderMenu() {
-    const el = document.getElementById('contenido');
-    if (!menu.length) { el.innerHTML = '<div class="estado"><p>Esta cafetería aún no tiene productos.</p></div>'; return; }
-
-    // Lista plana, sin categorías ni precios
-    let html = '<div class="lista-prods">';
-    menu.forEach(p => {
-      html += `<div class="prod" id="prod-${p.id}">
-        <div class="prod-nombre">${p.nombre}</div>
-        <div class="cant-ctrl">
-          <button class="cant-btn" data-action="dec" data-id="${p.id}">−</button>
-          <div class="cant-val" id="v-${p.id}" data-id="${p.id}">0</div>
-          <button class="cant-btn" data-action="inc" data-id="${p.id}">+</button>
-        </div>
-      </div>`;
-    });
-    html += '</div>';
-    html += '<div class="notas-wrap"><label class="notas-label">Notas</label><textarea class="notas-ta" id="notas" placeholder="Alergias, preferencias, indicaciones…"></textarea></div>';
-    el.innerHTML = html;
-
-    el.querySelectorAll('.cant-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const id = btn.dataset.id;
-        cantidades[id] = btn.dataset.action === 'inc'
-          ? Math.min((cantidades[id]||0)+1, 99)
-          : Math.max((cantidades[id]||0)-1, 0);
-        actualizarDisplay(id);
+ 
+  <!-- Toast de notificaciones -->
+  <div class="toast" id="toast"></div>
+ 
+  <!-- Supabase SDK (síncrono, debe ir antes del script principal) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+ 
+  <script>
+    // ─────────────────────────────────────────
+    // Configuración
+    // ─────────────────────────────────────────
+    const SUPABASE_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
+ 
+    const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+ 
+    // ─────────────────────────────────────────
+    // Estado de la app
+    // ─────────────────────────────────────────
+    let cafeteria    = null;
+    let productos    = [];
+    let cantidades   = {};       // { [producto.id]: number }
+    let pedidoActual = null;     // guardado justo antes de mostrar el modal
+ 
+    // Teclado numérico
+    let tecladoIdActivo = null;
+    let tecladoValor    = '';
+ 
+    // ─────────────────────────────────────────
+    // Arranque
+    // ─────────────────────────────────────────
+    async function init() {
+      const slug = new URLSearchParams(window.location.search).get('cafe');
+ 
+      if (!slug) {
+        mostrarError('Link inválido', 'No se especificó ninguna cafetería. Contacta a Panfitrión para obtener tu link.');
+        return;
+      }
+ 
+      const { data, error } = await db
+        .from('cafeterias')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+ 
+      if (error || !data) {
+        mostrarError('Cafetería no encontrada', 'Contacta a Panfitrión para obtener tu link correcto.');
+        return;
+      }
+ 
+      cafeteria = data;
+      productos = data.menu || [];
+      productos.forEach(p => { cantidades[p.id] = 0; });
+ 
+      document.getElementById('cafeNombre').textContent = data.nombre;
+      document.title = `${data.nombre} — Panfitrión`;
+ 
+      renderizarMenu();
+    }
+ 
+    // ─────────────────────────────────────────
+    // Renderizar lista de productos
+    // ─────────────────────────────────────────
+    function renderizarMenu() {
+      const contenido = document.getElementById('contenido');
+ 
+      if (!productos.length) {
+        contenido.innerHTML = '<div class="estado"><p>Esta cafetería aún no tiene productos.</p></div>';
+        return;
+      }
+ 
+      // Construir lista
+      const lista = document.createElement('div');
+      lista.className = 'lista';
+ 
+      productos.forEach(p => {
+        const item = document.createElement('div');
+        item.className = 'producto';
+        item.innerHTML = `
+          <div class="producto-nombre">${p.nombre}</div>
+          <div class="cantidad">
+            <button data-accion="dec" data-id="${p.id}">−</button>
+            <div class="cantidad-valor" id="val-${p.id}" data-id="${p.id}">0</div>
+            <button data-accion="inc" data-id="${p.id}">+</button>
+          </div>
+        `;
+        lista.appendChild(item);
       });
-    });
-
-    el.querySelectorAll('.cant-val').forEach(v => {
-      v.addEventListener('click', () => abrirTeclado(v.dataset.id));
-    });
-  }
-
-  function actualizarDisplay(id) {
-    const el = document.getElementById('v-' + id);
-    if (!el) return;
-    const v = cantidades[id] || 0;
-    el.textContent = v;
-    el.classList.toggle('on', v > 0);
-    actualizarBar();
-  }
-
-  function actualizarBar() {
-    const total = Object.values(cantidades).reduce((a,b)=>a+b, 0);
-    document.getElementById('barCount').textContent = total + (total===1?' producto':' productos');
-    document.getElementById('bar').classList.toggle('show', total > 0);
-  }
-
-  // TECLADO
-  function abrirTeclado(id) {
-    tecladoProdId = id;
-    tecladoVal = cantidades[id] > 0 ? String(cantidades[id]) : '';
-    document.getElementById('tecladoNombre').textContent = menu.find(p=>p.id===id)?.nombre || '';
-    document.getElementById('tecladoDisplay').textContent = tecladoVal || '0';
-    document.getElementById('tecladoBg').classList.add('show');
-  }
-
-  document.getElementById('tecladoBg').addEventListener('click', e => {
-    if (e.target === document.getElementById('tecladoBg')) cerrarTeclado();
-  });
-
-  document.getElementById('tecladoPanel').addEventListener('click', e => {
-    const k = e.target.closest('.tecla')?.dataset.k;
-    if (!k) return;
-    if (k === 'del') {
-      tecladoVal = tecladoVal.slice(0,-1);
-    } else if (k === 'ok') {
-      if (tecladoProdId !== null) { cantidades[tecladoProdId] = parseInt(tecladoVal)||0; actualizarDisplay(tecladoProdId); }
-      cerrarTeclado(); return;
-    } else {
-      if (tecladoVal.length >= 2) return;
-      tecladoVal += k;
-      if (tecladoVal.startsWith('0') && tecladoVal.length > 1) tecladoVal = tecladoVal.slice(1);
+ 
+      // Campo de notas
+      const notas = document.createElement('div');
+      notas.className = 'notas';
+      notas.innerHTML = `
+        <label for="campoNotas">Notas</label>
+        <textarea id="campoNotas" placeholder="Alergias, preferencias, indicaciones especiales…"></textarea>
+      `;
+ 
+      contenido.innerHTML = '';
+      contenido.appendChild(lista);
+      contenido.appendChild(notas);
+ 
+      // Eventos: botones + y −
+      lista.querySelectorAll('button[data-accion]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          if (btn.dataset.accion === 'inc') {
+            cantidades[id] = Math.min((cantidades[id] || 0) + 1, 99);
+          } else {
+            cantidades[id] = Math.max((cantidades[id] || 0) - 1, 0);
+          }
+          actualizarValor(id);
+        });
+      });
+ 
+      // Eventos: tocar el número abre el teclado
+      lista.querySelectorAll('.cantidad-valor').forEach(el => {
+        el.addEventListener('click', () => abrirTeclado(el.dataset.id));
+      });
     }
-    document.getElementById('tecladoDisplay').textContent = tecladoVal || '0';
-  });
-
-  function cerrarTeclado() {
-    document.getElementById('tecladoBg').classList.remove('show');
-    tecladoProdId = null; tecladoVal = '';
-  }
-
-  // ENVIAR
-  document.getElementById('btnEnviar').addEventListener('click', async () => {
-    const seleccionados = menu.filter(p=>(cantidades[p.id]||0)>0).map(p=>({ id:p.id, nombre:p.nombre, cantidad:cantidades[p.id] }));
-    if (!seleccionados.length) { toast('Agrega al menos un producto'); return; }
-    const btn = document.getElementById('btnEnviar');
-    btn.disabled = true; btn.textContent = 'Guardando…';
-    const notas = document.getElementById('notas')?.value || '';
-    try {
-      const { error } = await sb.from('pedidos').insert([{
-        cafeteria_id: cafe.id, cafeteria_nombre: cafe.nombre,
-        productos: seleccionados, notas, fecha: new Date().toISOString()
-      }]);
-      if (error) throw error;
-      pedidoActual = { productos: seleccionados, notas, cafeteria: cafe.nombre };
-      document.getElementById('modalBg').classList.add('show');
-    } catch(e) {
-      console.error(e); toast('Error al guardar. Intenta de nuevo.');
-    } finally {
-      btn.disabled = false; btn.textContent = 'Enviar pedido';
+ 
+    // ─────────────────────────────────────────
+    // Actualizar número en pantalla y barra
+    // ─────────────────────────────────────────
+    function actualizarValor(id) {
+      const el = document.getElementById(`val-${id}`);
+      if (!el) return;
+      const val = cantidades[id] || 0;
+      el.textContent = val;
+      el.classList.toggle('activo', val > 0);
+      actualizarBarra();
     }
-  });
-
-  // WHATSAPP
-  document.getElementById('btnWA').addEventListener('click', () => {
-    if (!pedidoActual) return;
-    const fecha = new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-    let msg = `🥖 *Pedido Panfitrión*\n📍 *${pedidoActual.cafeteria}*\n📅 ${fecha}\n\n*Productos:*\n`;
-    pedidoActual.productos.forEach(p => { msg += `• ${p.nombre}: *${p.cantidad}*\n`; });
-    if (pedidoActual.notas.trim()) msg += `\n📝 *Notas:* ${pedidoActual.notas.trim()}`;
-    if (navigator.share) { navigator.share({ title:'Pedido Panfitrión', text:msg }).catch(()=>{}); }
-    else { window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank'); }
-  });
-
-  document.getElementById('btnOtroPedido').addEventListener('click', () => {
-    document.getElementById('modalBg').classList.remove('show');
-    menu.forEach(p=>{ cantidades[p.id]=0; actualizarDisplay(p.id); });
-    if (document.getElementById('notas')) document.getElementById('notas').value='';
-    pedidoActual = null;
-  });
-
-  function toast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'),3000);
-  }
-
-  function mostrarError(titulo, texto) {
-    document.getElementById('cafeTitulo').textContent = titulo;
-    document.getElementById('contenido').innerHTML = `<div class="estado"><div class="error-icon">🍞</div><div class="error-titulo">${titulo}</div><div class="error-texto">${texto}</div></div>`;
-  }
-
-  init();
-</script>
+ 
+    function actualizarBarra() {
+      const total = Object.values(cantidades).reduce((a, b) => a + b, 0);
+      document.getElementById('barraTotalTexto').textContent =
+        `${total} ${total === 1 ? 'producto' : 'productos'}`;
+      document.getElementById('barraEnvio').classList.toggle('visible', total > 0);
+    }
+ 
+    // ─────────────────────────────────────────
+    // Teclado numérico
+    // ─────────────────────────────────────────
+    function abrirTeclado(id) {
+      tecladoIdActivo = id;
+      tecladoValor    = cantidades[id] > 0 ? String(cantidades[id]) : '';
+ 
+      const producto = productos.find(p => p.id === id);
+      document.getElementById('tecladoProducto').textContent = producto?.nombre || '';
+      document.getElementById('tecladoPantalla').textContent  = tecladoValor || '0';
+      document.getElementById('tecladoFondo').classList.add('visible');
+    }
+ 
+    function cerrarTeclado() {
+      document.getElementById('tecladoFondo').classList.remove('visible');
+      tecladoIdActivo = null;
+      tecladoValor    = '';
+    }
+ 
+    function procesarTecla(k) {
+      if (k === 'del') {
+        tecladoValor = tecladoValor.slice(0, -1);
+ 
+      } else if (k === 'ok') {
+        if (tecladoIdActivo !== null) {
+          cantidades[tecladoIdActivo] = parseInt(tecladoValor) || 0;
+          actualizarValor(tecladoIdActivo);
+        }
+        cerrarTeclado();
+        return;
+ 
+      } else {
+        if (tecladoValor.length >= 2) return;
+        tecladoValor += k;
+        // Eliminar cero inicial (ej. "07" → "7")
+        if (tecladoValor.startsWith('0') && tecladoValor.length > 1) {
+          tecladoValor = tecladoValor.slice(1);
+        }
+      }
+ 
+      document.getElementById('tecladoPantalla').textContent = tecladoValor || '0';
+    }
+ 
+    // Cerrar teclado al tocar el fondo oscuro
+    document.getElementById('tecladoFondo').addEventListener('click', e => {
+      if (e.target === document.getElementById('tecladoFondo')) cerrarTeclado();
+    });
+ 
+    // Delegar clicks del teclado en el grid
+    document.querySelector('.teclado-grid').addEventListener('click', e => {
+      const tecla = e.target.closest('.tecla');
+      if (tecla) procesarTecla(tecla.dataset.k);
+    });
+ 
+    // ─────────────────────────────────────────
+    // Enviar pedido → guardar en Supabase
+    // ─────────────────────────────────────────
+    document.getElementById('btnEnviar').addEventListener('click', async () => {
+      const seleccionados = productos
+        .filter(p => (cantidades[p.id] || 0) > 0)
+        .map(p => ({ id: p.id, nombre: p.nombre, cantidad: cantidades[p.id] }));
+ 
+      if (!seleccionados.length) {
+        mostrarToast('Agrega al menos un producto');
+        return;
+      }
+ 
+      const btn = document.getElementById('btnEnviar');
+      btn.disabled   = true;
+      btn.textContent = 'Guardando…';
+ 
+      const notas = document.getElementById('campoNotas')?.value.trim() || '';
+ 
+      try {
+        const { error } = await db.from('pedidos').insert([{
+          cafeteria_id:     cafeteria.id,
+          cafeteria_nombre: cafeteria.nombre,
+          productos:        seleccionados,
+          notas,
+          fecha:            new Date().toISOString(),
+        }]);
+ 
+        if (error) throw error;
+ 
+        pedidoActual = { cafeteria: cafeteria.nombre, productos: seleccionados, notas };
+        document.getElementById('modalFondo').classList.add('visible');
+ 
+      } catch (err) {
+        console.error(err);
+        mostrarToast('Error al guardar. Intenta de nuevo.');
+      } finally {
+        btn.disabled   = false;
+        btn.textContent = 'Enviar pedido';
+      }
+    });
+ 
+    // ─────────────────────────────────────────
+    // Compartir por WhatsApp
+    // ─────────────────────────────────────────
+    document.getElementById('btnWhatsApp').addEventListener('click', () => {
+      if (!pedidoActual) return;
+ 
+      const fecha = new Date().toLocaleDateString('es-MX', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+      });
+ 
+      let mensaje = `🥖 *Pedido Panfitrión*\n`;
+      mensaje    += `📍 *${pedidoActual.cafeteria}*\n`;
+      mensaje    += `📅 ${fecha}\n\n`;
+      mensaje    += `*Productos:*\n`;
+ 
+      pedidoActual.productos.forEach(p => {
+        mensaje += `• ${p.nombre}: *${p.cantidad}*\n`;
+      });
+ 
+      if (pedidoActual.notas) {
+        mensaje += `\n📝 *Notas:* ${pedidoActual.notas}`;
+      }
+ 
+      // Web Share API → el usuario elige el contacto de WhatsApp
+      if (navigator.share) {
+        navigator.share({ title: 'Pedido Panfitrión', text: mensaje }).catch(() => {});
+      } else {
+        window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+      }
+    });
+ 
+    // ─────────────────────────────────────────
+    // Hacer otro pedido (resetear todo)
+    // ─────────────────────────────────────────
+    document.getElementById('btnOtroPedido').addEventListener('click', () => {
+      document.getElementById('modalFondo').classList.remove('visible');
+      productos.forEach(p => { cantidades[p.id] = 0; actualizarValor(p.id); });
+      const campoNotas = document.getElementById('campoNotas');
+      if (campoNotas) campoNotas.value = '';
+      pedidoActual = null;
+    });
+ 
+    // ─────────────────────────────────────────
+    // Utilidades
+    // ─────────────────────────────────────────
+    function mostrarToast(mensaje) {
+      const el = document.getElementById('toast');
+      el.textContent = mensaje;
+      el.classList.add('visible');
+      clearTimeout(el._timer);
+      el._timer = setTimeout(() => el.classList.remove('visible'), 3000);
+    }
+ 
+    function mostrarError(titulo, texto) {
+      document.getElementById('cafeNombre').textContent = titulo;
+      document.getElementById('contenido').innerHTML = `
+        <div class="estado">
+          <div class="icono">🍞</div>
+          <h2>${titulo}</h2>
+          <p>${texto}</p>
+        </div>
+      `;
+    }
+ 
+    // ─────────────────────────────────────────
+    // Iniciar
+    // ─────────────────────────────────────────
+    init();
+  </script>
 </body>
 </html>
+ 
