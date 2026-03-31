@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panfitrión — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --negro: #0a0a0a;
+      --dorado: #c9a84c;
+      --dorado-claro: #e8c97a;
+      --dorado-oscuro: #9a7a2e;
+      --blanco: #f5f2eb;
+      --gris: #161616;
+      --gris-medio: #222222;
+      --gris-borde: #2a2a2a;
+      --texto-claro: #888888;
+      --rojo: #e05252;
+      --verde: #4caf7d;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--negro);
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    .login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px 24px;
+    }
+
+    .login-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--blanco);
+      margin-bottom: 4px;
+    }
+
+    .login-logo span { color: var(--dorado); }
+
+    .login-subtitulo {
+      font-size: 12px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--texto-claro);
+      margin-bottom: 40px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--gris);
+      border-radius: 20px;
+      padding: 32px 28px;
+      border: 1px solid var(--gris-borde);
+    }
+
+    .login-card h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+
+    .campo {
+      margin-bottom: 16px;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--texto-claro);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .campo input {
+      width: 100%;
+      background: var(--negro);
+      border: 1px solid var(--gris-borde);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .campo input:focus { border-color: var(--dorado); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--dorado);
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--negro);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .btn-login:hover { opacity: 0.9; }
+
+    .error-msg {
+      color: var(--rojo);
+      font-size: 13px;
+      margin-top: 12px;
+      text-align: center;
+      display: none;
+    }
+
+    /* ── DASHBOARD ── */
+    .dashboard { display: none; }
+
+    .sidebar {
+      width: 240px;
+      background: var(--gris);
+      border-right: 1px solid var(--gris-borde);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-logo {
+      padding: 28px 24px 20px;
+      border-bottom: 1px solid var(--gris-borde);
+    }
+
+    .sidebar-logo h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--blanco);
+    }
+
+    .sidebar-logo h1 span { color: var(--dorado); }
+
+    .sidebar-logo small {
+      font-size: 11px;
+      color: var(--texto-claro);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav {
+      padding: 16px 12px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--texto-claro);
+      transition: all 0.2s;
+      margin-bottom: 4px;
+    }
+
+    .nav-item:hover { background: var(--gris-medio); color: var(--blanco); }
+
+    .nav-item.activo {
+      background: rgba(201,168,76,0.12);
+      color: var(--dorado);
+    }
+
+    .nav-item .nav-icon { font-size: 17px; width: 20px; }
+
+    .sidebar-footer {
+      padding: 16px 12px;
+      border-top: 1px solid var(--gris-borde);
+    }
+
+    .btn-logout {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gris-borde);
+      border-radius: 10px;
+      padding: 10px;
+      color: var(--texto-claro);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover { border-color: var(--rojo); color: var(--rojo); }
+
+    /* ── CONTENIDO PRINCIPAL ── */
+    .main-content {
+      margin-left: 240px;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .seccion-panel { display: none; }
+    .seccion-panel.activa { display: block; }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 32px;
+      gap: 16px;
+    }
+
+    .panel-titulo h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 900;
+    }
+
+    .panel-titulo p {
+      font-size: 13px;
+      color: var(--texto-claro);
+      margin-top: 4px;
+    }
+
+    .btn-primario {
+      background: var(--dorado);
+      border: none;
+      border-radius: 10px;
+      padding: 10px 20px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--negro);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+
+    .btn-primario:hover { opacity: 0.9; }
+
+    /* ── CARDS DE CAFETERÍAS ── */
+    .cafeterias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 20px;
+    }
+
+    .cafe-card {
+      background: var(--gris);
+      border: 1px solid var(--gris-borde);
+      border-radius: 16px;
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .cafe-card:hover { border-color: rgba(201,168,76,0.3); }
+
+    .cafe-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .cafe-card-nombre {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .cafe-card-slug {
+      font-size: 12px;
+      color: var(--dorado);
+      margin-top: 3px;
+      font-family: monospace;
+    }
+
+    .cafe-card-acciones {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-icono {
+      background: var(--gris-medio);
+      border: none;
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+
+    .btn-icono:hover { background: var(--gris-borde); }
+    .btn-icono.eliminar:hover { background: rgba(224,82,82,0.15); }
+
+    .cafe-card-link {
+      background: var(--negro);
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .cafe-card-link code {
+      font-size: 11px;
+      color: var(--texto-claro);
+      font-family: monospace;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-copiar {
+      background: rgba(201,168,76,0.15);
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--dorado);
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+
+    .btn-copiar:hover { background: rgba(201,168,76,0.25); }
+
+    .cafe-card-productos {
+      font-size: 13px;
+      color: var(--texto-claro);
+    }
+
+    .cafe-card-productos strong { color: var(--blanco); }
+
+    /* ── TABLA DE PEDIDOS ── */
+    .filtros-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .select-filtro, .input-filtro {
+      background: var(--gris);
+      border: 1px solid var(--gris-borde);
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .select-filtro:focus, .input-filtro:focus { border-color: var(--dorado); }
+
+    .tabla-wrapper {
+      background: var(--gris);
+      border: 1px solid var(--gris-borde);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: var(--gris-medio);
+      border-bottom: 1px solid var(--gris-borde);
+    }
+
+    th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--texto-claro);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 14px 16px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(42,42,42,0.6);
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge-cafe {
+      background: rgba(201,168,76,0.12);
+      color: var(--dorado);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .productos-celda {
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .productos-celda .prod-item { color: var(--blanco); }
+    .productos-celda .prod-item span { color: var(--dorado); font-weight: 600; }
+
+    .notas-celda {
+      font-size: 13px;
+      color: var(--texto-claro);
+      font-style: italic;
+      max-width: 200px;
+    }
+
+    .fecha-celda {
+      font-size: 12px;
+      color: var(--texto-claro);
+      white-space: nowrap;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 24px;
+      color: var(--texto-claro);
+    }
+
+    .empty-state .icon { font-size: 40px; margin-bottom: 12px; }
+    .empty-state p { font-size: 14px; }
+
+    /* ── MODAL CAFETERÍA ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 500;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-overlay.visible { display: flex; }
+
+    .modal-panel {
+      background: var(--gris);
+      border-radius: 20px;
+      border: 1px solid var(--gris-borde);
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-titulo {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-cerrar-modal {
+      background: none;
+      border: none;
+      color: var(--texto-claro);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .form-grupo {
+      margin-bottom: 20px;
+    }
+
+    .form-grupo label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--texto-claro);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .form-grupo input, .form-grupo textarea {
+      width: 100%;
+      background: var(--negro);
+      border: 1px solid var(--gris-borde);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .form-grupo input:focus, .form-grupo textarea:focus { border-color: var(--dorado); }
+
+    .form-grupo small {
+      display: block;
+      font-size: 12px;
+      color: var(--texto-claro);
+      margin-top: 6px;
+    }
+
+    /* Sección productos del menú */
+    .productos-editor {
+      background: var(--negro);
+      border: 1px solid var(--gris-borde);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .producto-fila {
+      display: grid;
+      grid-template-columns: 1fr 120px 120px 40px;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--gris-borde);
+      align-items: center;
+    }
+
+    .producto-fila:last-child { border-bottom: none; }
+
+    .producto-fila input {
+      background: var(--gris-medio);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--blanco);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .producto-fila input:focus { border-color: rgba(201,168,76,0.4); }
+
+    .productos-header {
+      display: grid;
+      grid-template-columns: 1fr 120px 120px 40px;
+      gap: 8px;
+      padding: 8px 12px;
+      background: var(--gris-medio);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--texto-claro);
+      font-weight: 600;
+    }
+
+    .btn-eliminar-prod {
+      background: none;
+      border: none;
+      color: var(--texto-claro);
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      width: 32px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-eliminar-prod:hover { background: rgba(224,82,82,0.15); color: var(--rojo); }
+
+    .btn-agregar-prod {
+      width: 100%;
+      background: transparent;
+      border: none;
+      padding: 10px;
+      color: var(--dorado);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .btn-agregar-prod:hover { background: rgba(201,168,76,0.08); }
+
+    .modal-acciones {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 28px;
+    }
+
+    .btn-secundario {
+      background: transparent;
+      border: 1px solid var(--gris-borde);
+      border-radius: 10px;
+      padding: 10px 20px;
+      color: var(--texto-claro);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .btn-secundario:hover { border-color: var(--texto-claro); }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--gris-medio);
+      color: var(--blanco);
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      z-index: 1000;
+      border: 1px solid var(--gris-borde);
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .toast.visible { transform: translateY(0); opacity: 1; }
+    .toast.exito { border-color: var(--verde); }
+    .toast.error { border-color: var(--rojo); }
+
+    /* Spinner */
+    .spinner-sm {
+      width: 16px; height: 16px;
+      border: 2px solid rgba(201,168,76,0.2);
+      border-top-color: var(--dorado);
+      border-radius: 50%;
+      animation: girar 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes girar { to { transform: rotate(360deg); } }
+
+    /* Responsive básico */
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main-content { margin-left: 0; padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── LOGIN ── -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-logo">Panfi<span>trión</span></div>
+    <div class="login-subtitulo">Panel de administración</div>
+
+    <div class="login-card">
+      <h2>Iniciar sesión</h2>
+      <div class="campo">
+        <label>Usuario</label>
+        <input type="text" id="loginUser" placeholder="admin" autocomplete="username" />
+      </div>
+      <div class="campo">
+        <label>Contraseña</label>
+        <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') doLogin()" />
+      </div>
+      <button class="btn-login" onclick="doLogin()">Entrar</button>
+      <div class="error-msg" id="loginError">Usuario o contraseña incorrectos</div>
+    </div>
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="dashboard" id="dashboard">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-logo">
+        <h1>Panfi<span>trión</span></h1>
+        <small>Admin</small>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-item activo" onclick="cambiarSeccion('cafeterias', this)">
+          <span class="nav-icon">🏪</span> Cafeterías
+        </div>
+        <div class="nav-item" onclick="cambiarSeccion('pedidos', this)">
+          <span class="nav-icon">📋</span> Pedidos
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+
+      <!-- SECCIÓN CAFETERÍAS -->
+      <div class="seccion-panel activa" id="panel-cafeterias">
+        <div class="panel-header">
+          <div class="panel-titulo">
+            <h2>Cafeterías</h2>
+            <p>Gestiona los puntos de venta y sus menús</p>
+          </div>
+          <button class="btn-primario" onclick="abrirModalCafe()">+ Nueva cafetería</button>
+        </div>
+        <div class="cafeterias-grid" id="cafeteriasGrid">
+          <div style="color:var(--texto-claro); font-size:14px; padding: 20px 0;">
+            <div class="spinner-sm"></div> Cargando...
+          </div>
+        </div>
+      </div>
+
+      <!-- SECCIÓN PEDIDOS -->
+      <div class="seccion-panel" id="panel-pedidos">
+        <div class="panel-header">
+          <div class="panel-titulo">
+            <h2>Pedidos</h2>
+            <p>Historial de todos los pedidos recibidos</p>
+          </div>
+        </div>
+
+        <div class="filtros-row">
+          <select class="select-filtro" id="filtroCafe" onchange="cargarPedidos()">
+            <option value="">Todas las cafeterías</option>
+          </select>
+          <input type="date" class="input-filtro" id="filtroFecha" onchange="cargarPedidos()" />
+          <button class="btn-primario" onclick="limpiarFiltros()" style="font-weight:500;font-size:13px;padding:9px 16px;">Limpiar filtros</button>
+        </div>
+
+        <div class="tabla-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Cafetería</th>
+                <th>Productos</th>
+                <th>Notas</th>
+              </tr>
+            </thead>
+            <tbody id="pedidosBody">
+              <tr><td colspan="4"><div class="empty-state"><div class="icon">📋</div><p>Cargando pedidos...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL CAFETERÍA -->
+  <div class="modal-overlay" id="modalCafe">
+    <div class="modal-panel">
+      <div class="modal-titulo">
+        <span id="modalTituloTexto">Nueva cafetería</span>
+        <button class="btn-cerrar-modal" onclick="cerrarModal()">×</button>
+      </div>
+
+      <input type="hidden" id="editandoId" value="" />
+
+      <div class="form-grupo">
+        <label>Nombre de la cafetería</label>
+        <input type="text" id="campoNombre" placeholder="Ej: Cafetería La Granja" />
+      </div>
+
+      <div class="form-grupo">
+        <label>Slug (identificador en la URL)</label>
+        <input type="text" id="campoSlug" placeholder="la-granja" />
+        <small>Solo minúsculas, sin espacios ni caracteres especiales. Ej: <code style="color:var(--dorado)">la-granja</code></small>
+      </div>
+
+      <div class="form-grupo">
+        <label>Menú de productos</label>
+        <div class="productos-editor" id="productosEditor">
+          <div class="productos-header">
+            <span>Nombre</span>
+            <span>Categoría</span>
+            <span>Precio (opc.)</span>
+            <span></span>
+          </div>
+          <div id="productosFila"></div>
+        </div>
+        <button class="btn-agregar-prod" onclick="agregarFilaProd()">+ Agregar producto</button>
+      </div>
+
+      <div class="modal-acciones">
+        <button class="btn-secundario" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-primario" onclick="guardarCafe()">Guardar cafetería</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ── CONFIGURACIÓN ──
+    // ⚠️ Reemplaza con tus credenciales reales de Supabase
+    const SUPABASE_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.cohttps://wttdrnftxmdqnfauhkkp.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ⚠️ Cambia estas credenciales antes de desplegar
+    const ADMIN_USER = 'admin';
+    const ADMIN_PASS = 'panfitron2024';
+
+    // URL base para generar links
+    const BASE_URL = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+
+    // ── LOGIN ──
+    function doLogin() {
+      const user = document.getElementById('loginUser').value.trim();
+      const pass = document.getElementById('loginPass').value;
+      const errEl = document.getElementById('loginError');
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        errEl.style.display = 'none';
+        sessionStorage.setItem('panfitron_auth', '1');
+        mostrarDashboard();
+      } else {
+        errEl.style.display = 'block';
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem('panfitron_auth');
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('loginScreen').style.display = 'flex';
+    }
+
+    function checkAuth() {
+      if (sessionStorage.getItem('panfitron_auth') === '1') {
+        mostrarDashboard();
+      }
+    }
+
+    function mostrarDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'flex';
+      cargarCafeterias();
+      cargarSelectorCafes();
+    }
+
+    // ── NAVEGACIÓN ──
+    function cambiarSeccion(id, el) {
+      document.querySelectorAll('.seccion-panel').forEach(s => s.classList.remove('activa'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('activo'));
+      document.getElementById('panel-' + id).classList.add('activa');
+      el.classList.add('activo');
+
+      if (id === 'pedidos') cargarPedidos();
+    }
+
+    // ── CAFETERÍAS ──
+    async function cargarCafeterias() {
+      const grid = document.getElementById('cafeteriasGrid');
+      grid.innerHTML = '<div style="color:var(--texto-claro);font-size:14px;padding:20px 0;"><div class="spinner-sm"></div> Cargando...</div>';
+
+      const { data, error } = await supabase.from('cafeterias').select('*').order('created_at', { ascending: false });
+
+      if (error) {
+        grid.innerHTML = '<div style="color:#e05252;font-size:14px;">Error al cargar cafeterías</div>';
+        return;
+      }
+
+      if (!data.length) {
+        grid.innerHTML = '<div style="color:var(--texto-claro);font-size:14px;padding:20px 0;">Aún no hay cafeterías. Crea la primera.</div>';
+        return;
+      }
+
+      grid.innerHTML = data.map(c => {
+        const link = `${BASE_URL}?cafe=${c.slug}`;
+        const numProds = (c.menu || []).length;
+        const cats = [...new Set((c.menu || []).map(p => p.categoria || 'General'))].join(', ');
+        return `
+          <div class="cafe-card">
+            <div class="cafe-card-header">
+              <div>
+                <div class="cafe-card-nombre">${c.nombre}</div>
+                <div class="cafe-card-slug">?cafe=${c.slug}</div>
+              </div>
+              <div class="cafe-card-acciones">
+                <button class="btn-icono" title="Editar" onclick="editarCafe('${c.id}')">✏️</button>
+                <button class="btn-icono eliminar" title="Eliminar" onclick="eliminarCafe('${c.id}', '${c.nombre}')">🗑️</button>
+              </div>
+            </div>
+            <div class="cafe-card-link">
+              <code>${link}</code>
+              <button class="btn-copiar" onclick="copiarLink('${link}', this)">Copiar</button>
+            </div>
+            <div class="cafe-card-productos">
+              <strong>${numProds}</strong> productos${cats ? ' · ' + cats : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function copiarLink(url, btn) {
+      navigator.clipboard.writeText(url).then(() => {
+        btn.textContent = '✓ Copiado';
+        setTimeout(() => btn.textContent = 'Copiar', 2000);
+      });
+    }
+
+    async function eliminarCafe(id, nombre) {
+      if (!confirm(`¿Eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
+      const { error } = await supabase.from('cafeterias').delete().eq('id', id);
+      if (error) { mostrarToast('Error al eliminar', 'error'); return; }
+      mostrarToast('Cafetería eliminada', 'exito');
+      cargarCafeterias();
+    }
+
+    // ── MODAL CAFETERÍA ──
+    let editandoId = null;
+
+    function abrirModalCafe() {
+      editandoId = null;
+      document.getElementById('modalTituloTexto').textContent = 'Nueva cafetería';
+      document.getElementById('campoNombre').value = '';
+      document.getElementById('campoSlug').value = '';
+      document.getElementById('productosFila').innerHTML = '';
+      agregarFilaProd();
+      agregarFilaProd();
+      document.getElementById('modalCafe').classList.add('visible');
+
+      // Autogenerar slug desde nombre
+      document.getElementById('campoNombre').oninput = function() {
+        if (!editandoId) {
+          document.getElementById('campoSlug').value = this.value
+            .toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+        }
+      };
+    }
+
+    async function editarCafe(id) {
+      const { data, error } = await supabase.from('cafeterias').select('*').eq('id', id).single();
+      if (error) { mostrarToast('Error al cargar cafetería', 'error'); return; }
+
+      editandoId = id;
+      document.getElementById('modalTituloTexto').textContent = 'Editar cafetería';
+      document.getElementById('campoNombre').value = data.nombre;
+      document.getElementById('campoSlug').value = data.slug;
+      document.getElementById('campoNombre').oninput = null;
+
+      // Cargar productos
+      const fila = document.getElementById('productosFila');
+      fila.innerHTML = '';
+      (data.menu || []).forEach(p => agregarFilaProd(p));
+
+      document.getElementById('modalCafe').classList.add('visible');
+    }
+
+    function cerrarModal() {
+      document.getElementById('modalCafe').classList.remove('visible');
+      editandoId = null;
+    }
+
+    function agregarFilaProd(prod = null) {
+      const id = 'prod-' + Date.now() + Math.random().toString(36).slice(2, 6);
+      const div = document.createElement('div');
+      div.className = 'producto-fila';
+      div.id = id;
+      div.innerHTML = `
+        <input type="text" placeholder="Nombre del producto" value="${prod ? prod.nombre : ''}" data-campo="nombre" />
+        <input type="text" placeholder="Categoría" value="${prod ? (prod.categoria || '') : ''}" data-campo="categoria" />
+        <input type="number" placeholder="0.00" value="${prod ? (prod.precio || '') : ''}" data-campo="precio" min="0" step="0.5" />
+        <button class="btn-eliminar-prod" onclick="document.getElementById('${id}').remove()">×</button>
+      `;
+      document.getElementById('productosFila').appendChild(div);
+    }
+
+    async function guardarCafe() {
+      const nombre = document.getElementById('campoNombre').value.trim();
+      const slug = document.getElementById('campoSlug').value.trim();
+
+      if (!nombre || !slug) { mostrarToast('Completa nombre y slug', 'error'); return; }
+      if (!/^[a-z0-9-]+$/.test(slug)) { mostrarToast('El slug solo puede tener letras minúsculas, números y guiones', 'error'); return; }
+
+      // Leer productos
+      const filas = document.querySelectorAll('#productosFila .producto-fila');
+      const menu = [];
+      filas.forEach(fila => {
+        const nom = fila.querySelector('[data-campo="nombre"]').value.trim();
+        if (!nom) return;
+        menu.push({
+          id: 'p-' + nom.toLowerCase().replace(/\s+/g, '-') + '-' + Math.random().toString(36).slice(2, 6),
+          nombre: nom,
+          categoria: fila.querySelector('[data-campo="categoria"]').value.trim() || 'General',
+          precio: parseFloat(fila.querySelector('[data-campo="precio"]').value) || null
+        });
+      });
+
+      if (menu.length === 0) { mostrarToast('Agrega al menos un producto', 'error'); return; }
+
+      const payload = { nombre, slug, menu };
+
+      let error;
+      if (editandoId) {
+        ({ error } = await supabase.from('cafeterias').update(payload).eq('id', editandoId));
+      } else {
+        ({ error } = await supabase.from('cafeterias').insert([{ ...payload, created_at: new Date().toISOString() }]));
+      }
+
+      if (error) {
+        if (error.code === '23505') mostrarToast('Ese slug ya existe, elige otro', 'error');
+        else mostrarToast('Error al guardar', 'error');
+        return;
+      }
+
+      cerrarModal();
+      mostrarToast(editandoId ? 'Cafetería actualizada' : 'Cafetería creada', 'exito');
+      cargarCafeterias();
+      cargarSelectorCafes();
+    }
+
+    // ── PEDIDOS ──
+    async function cargarSelectorCafes() {
+      const { data } = await supabase.from('cafeterias').select('id, nombre').order('nombre');
+      const sel = document.getElementById('filtroCafe');
+      sel.innerHTML = '<option value="">Todas las cafeterías</option>';
+      (data || []).forEach(c => {
+        sel.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+      });
+    }
+
+    async function cargarPedidos() {
+      const body = document.getElementById('pedidosBody');
+      body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="spinner-sm"></div></div></td></tr>';
+
+      let query = supabase.from('pedidos').select('*').order('fecha', { ascending: false }).limit(200);
+
+      const cafeId = document.getElementById('filtroCafe').value;
+      const fecha = document.getElementById('filtroFecha').value;
+
+      if (cafeId) query = query.eq('cafeteria_id', cafeId);
+      if (fecha) {
+        query = query.gte('fecha', fecha + 'T00:00:00').lte('fecha', fecha + 'T23:59:59');
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><p style="color:#e05252">Error al cargar pedidos</p></div></td></tr>';
+        return;
+      }
+
+      if (!data.length) {
+        body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="icon">📭</div><p>No hay pedidos con estos filtros</p></div></td></tr>';
+        return;
+      }
+
+      body.innerHTML = data.map(p => {
+        const fecha = new Date(p.fecha).toLocaleDateString('es-MX', {
+          day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        const prods = (p.productos || []).map(pr =>
+          `<div class="prod-item">${pr.nombre} <span>×${pr.cantidad}</span></div>`
+        ).join('');
+
+        return `
+          <tr>
+            <td class="fecha-celda">${fecha}</td>
+            <td><span class="badge-cafe">${p.cafeteria_nombre || '—'}</span></td>
+            <td class="productos-celda">${prods || '—'}</td>
+            <td class="notas-celda">${p.notas || '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function limpiarFiltros() {
+      document.getElementById('filtroCafe').value = '';
+      document.getElementById('filtroFecha').value = '';
+      cargarPedidos();
+    }
+
+    // ── TOAST ──
+    function mostrarToast(msg, tipo = '') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast visible ' + tipo;
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('visible'), 3000);
+    }
+
+    // ── INIT ──
+    checkAuth();
+  </script>
+</body>
+</html>
