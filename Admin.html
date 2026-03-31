@@ -831,10 +831,16 @@
   <script>
     // ── CONFIGURACIÓN ──
     // ⚠️ Reemplaza con tus credenciales reales de Supabase
-    const SUPABASE_URL = 'https://wttdrnftxmdqnfauhkkp.supabase.cohttps://wttdrnftxmdqnfauhkkp.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0dGRybmZ0eG1kcW5mYXVoa2twIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjI5NzUsImV4cCI6MjA5MDUzODk3NX0.1NiCaHaEZPsa85cbZVC1iAxDu1FbQ7tiM-VBt_e68Qk';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = 'TU_SUPABASE_URL';
+    const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
 
+    // El cliente se inicializa después de que el DOM y el SDK estén listos
+    let supabase;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      checkAuth();
+    });
     // ⚠️ Cambia estas credenciales antes de desplegar
     const ADMIN_USER = 'admin';
     const ADMIN_PASS = 'panfitron2024';
@@ -1123,8 +1129,6 @@
       t._timer = setTimeout(() => t.classList.remove('visible'), 3000);
     }
 
-    // ── INIT ──
-    checkAuth();
   </script>
 </body>
 </html>
