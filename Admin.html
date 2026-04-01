@@ -480,91 +480,98 @@
 
   .btn-limpiar-filtros:hover { background: var(--gris2); color: var(--blanco); }
 
-  .tabla-wrap {
-    border: 1px solid var(--gris1);
-    border-radius: 12px;
-    overflow: hidden;
+  /* ── PANEL PEDIDOS — CARDS ── */
+  .fecha-grupo {
+    margin-bottom: 28px;
   }
 
-  .tabla-header {
-    display: grid;
-    grid-template-columns: 140px 160px 1fr 200px;
-    background: var(--negro3);
-    border-bottom: 1px solid var(--gris1);
-    padding: 12px 16px;
+  .fecha-grupo-header {
+    display: flex;
+    align-items: center;
     gap: 12px;
+    margin-bottom: 12px;
   }
 
-  .col-titulo {
+  .fecha-grupo-titulo {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--blanco);
+    white-space: nowrap;
+  }
+
+  .fecha-grupo-linea {
+    flex: 1;
+    height: 1px;
+    background: var(--gris1);
+  }
+
+  .fecha-grupo-badge {
     font-size: 11px;
     font-weight: 600;
     color: var(--gris4);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    background: var(--negro3);
+    border: 1px solid var(--gris1);
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
   }
 
-  .pedido-fila {
-    display: grid;
-    grid-template-columns: 140px 160px 1fr 200px;
-    padding: 14px 16px;
+  .pedido-card-admin {
+    background: var(--negro3);
+    border: 1px solid var(--gris1);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+
+  .pedido-card-admin:hover { border-color: var(--gris2); }
+
+  .pedido-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
     gap: 12px;
     border-bottom: 1px solid var(--gris1);
-    align-items: start;
-    transition: background 0.1s;
+    flex-wrap: wrap;
   }
 
-  .pedido-fila:last-child { border-bottom: none; }
-  .pedido-fila:hover { background: var(--negro3); }
+  .pedido-cafe-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.22);
+    color: var(--dorado);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: 'Playfair Display', serif;
+  }
 
-  .pedido-col { font-size: 13px; color: var(--blanco); line-height: 1.5; }
-
-  .pedido-col.fecha-col {
+  .pedido-meta {
+    font-size: 11px;
     color: var(--gris4);
-    font-size: 12px;
+    text-align: right;
     line-height: 1.6;
   }
 
-  .cafe-badge {
-    display: inline-block;
-    background: rgba(201,168,76,0.12);
-    border: 1px solid rgba(201,168,76,0.25);
-    color: var(--dorado);
-    font-size: 12px;
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 6px;
+  .pedido-card-body {
+    padding: 14px 16px;
   }
 
-  .prod-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    color: var(--blanco);
-    line-height: 1.7;
-  }
-
-  .prod-cant {
-    color: var(--dorado);
-    font-weight: 700;
-    font-family: 'Playfair Display', serif;
-    font-size: 14px;
-    min-width: 20px;
-  }
-
-  .prod-sucursal-label {
-    font-size: 11px;
-    color: var(--dorado3);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 4px;
+  .pedido-prods-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .prod-tabla {
     width: 100%;
     border-collapse: collapse;
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .prod-tabla th {
@@ -573,16 +580,16 @@
     color: var(--dorado3);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    padding: 4px 8px 4px 0;
+    padding: 6px 12px 6px 0;
     border-bottom: 1px solid var(--gris1);
     white-space: nowrap;
     text-align: center;
   }
 
-  .prod-tabla th:first-child { text-align: left; }
+  .prod-tabla th:first-child { text-align: left; color: var(--gris4); }
 
   .prod-tabla td {
-    padding: 4px 8px 4px 0;
+    padding: 6px 12px 6px 0;
     color: var(--blanco);
     border-bottom: 1px solid rgba(255,255,255,0.04);
     text-align: center;
@@ -590,19 +597,38 @@
   }
 
   .prod-tabla td:first-child { text-align: left; color: var(--gris5); }
-
   .prod-tabla tr:last-child td { border-bottom: none; }
 
   .prod-tabla .prod-cant-cell {
     color: var(--dorado);
     font-weight: 700;
     font-family: 'Playfair Display', serif;
-    font-size: 13px;
+    font-size: 14px;
   }
 
   .prod-tabla .prod-cero { color: var(--gris2); }
 
-  .notas-col {
+  .prod-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--blanco);
+    line-height: 1.8;
+  }
+
+  .prod-cant {
+    color: var(--dorado);
+    font-weight: 700;
+    font-family: 'Playfair Display', serif;
+    font-size: 14px;
+    min-width: 22px;
+  }
+
+  .pedido-notas-admin {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--gris1);
     font-size: 12px;
     color: var(--gris4);
     font-style: italic;
@@ -781,6 +807,39 @@
 
   .btn-agregar-item:hover { border-color: var(--dorado); color: var(--dorado); }
 
+  .item-dias-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .item-dias {
+    width: 46px;
+    background: var(--negro4);
+    border: 1px solid var(--gris2);
+    border-radius: 8px;
+    color: var(--blanco);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    padding: 9px 6px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.15s;
+    -moz-appearance: textfield;
+  }
+
+  .item-dias::-webkit-inner-spin-button,
+  .item-dias::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; }
+  .item-dias:focus { border-color: var(--dorado); }
+  .item-dias::placeholder { color: var(--gris3); }
+
+  .item-dias-label {
+    font-size: 11px;
+    color: var(--gris4);
+    white-space: nowrap;
+  }
+
   .modal-form-footer {
     padding: 16px 24px;
     border-top: 1px solid var(--gris1);
@@ -929,18 +988,6 @@
   /* ── RESPONSIVE ── */
   @media (max-width: 860px) {
     .sidebar { display: none; }
-
-    .tabla-header,
-    .pedido-fila {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .tabla-header .col-titulo:nth-child(3),
-    .tabla-header .col-titulo:nth-child(4),
-    .pedido-fila .pedido-col:nth-child(3),
-    .pedido-fila .pedido-col:nth-child(4) {
-      display: none;
-    }
   }
 </style>
 </head>
@@ -1019,18 +1066,10 @@
           <input class="filtro-input" type="date" id="filtroFecha" placeholder="Fecha entrega">
           <button class="btn-limpiar-filtros" id="btnLimpiarFiltros">Limpiar</button>
         </div>
-        <div class="tabla-wrap">
-          <div class="tabla-header">
-            <div class="col-titulo">Fecha enviado</div>
-            <div class="col-titulo">Cafetería</div>
-            <div class="col-titulo">Productos</div>
-            <div class="col-titulo">Notas</div>
-          </div>
-          <div id="pedidosList">
-            <div class="empty-state" style="padding:40px">
-              <div class="empty-state-ico">⏳</div>
-              <div class="empty-state-txt">Cargando pedidos…</div>
-            </div>
+        <div id="pedidosList">
+          <div class="empty-state" style="padding:40px">
+            <div class="empty-state-ico">⏳</div>
+            <div class="empty-state-txt">Cargando pedidos…</div>
           </div>
         </div>
       </div>
@@ -1284,7 +1323,7 @@
     cafSlugEl.value   = c.slug;
 
     listaProductosEl.innerHTML = '';
-    (c.menu || []).forEach(p => agregarFilaProducto(p.nombre));
+    (c.menu || []).forEach(p => agregarFilaProducto(p.nombre, p.dias_entrega));
 
     listaSucursalesEl.innerHTML = '';
     (c.sucursales || []).forEach(s => agregarFilaSucursal(s));
@@ -1331,16 +1370,20 @@
   }
 
   // Filas de productos
-  function agregarFilaProducto(valor) {
+  function agregarFilaProducto(nombre, dias) {
     const fila = document.createElement('div');
     fila.className = 'item-fila';
     fila.innerHTML = `
-      <input class="item-input" type="text" placeholder="Nombre del producto" value="${valor || ''}">
+      <input class="item-input" type="text" placeholder="Nombre del producto" value="${nombre || ''}">
+      <div class="item-dias-wrap">
+        <input class="item-dias" type="number" min="1" max="30" placeholder="—" title="Días de entrega automática" value="${dias || ''}">
+        <span class="item-dias-label">días</span>
+      </div>
       <button class="btn-quitar">×</button>
     `;
     fila.querySelector('.btn-quitar').addEventListener('click', () => fila.remove());
     listaProductosEl.appendChild(fila);
-    fila.querySelector('input').focus();
+    fila.querySelector('.item-input').focus();
   }
 
   function agregarFilaSucursal(valor) {
@@ -1365,10 +1408,13 @@
     if (!nombre) { toast('El nombre es requerido.'); return; }
     if (!slug)   { toast('El slug es requerido.'); return; }
 
-    const menu = Array.from(listaProductosEl.querySelectorAll('.item-input'))
-      .map(i => i.value.trim())
-      .filter(Boolean)
-      .map(n => ({ id: 'p' + Math.random().toString(36).slice(2,8), nombre: n }));
+    const menu = Array.from(listaProductosEl.querySelectorAll('.item-fila'))
+      .map(fila => ({
+        nombre: fila.querySelector('.item-input').value.trim(),
+        dias_entrega: parseInt(fila.querySelector('.item-dias').value) || null
+      }))
+      .filter(p => p.nombre)
+      .map(p => ({ id: 'p' + Math.random().toString(36).slice(2,8), nombre: p.nombre, dias_entrega: p.dias_entrega }));
 
     // Mantener IDs existentes al editar
     if (editandoId) {
@@ -1377,7 +1423,7 @@
         const menuActual = cafeActual.menu || [];
         const menuFinal = menu.map(np => {
           const existe = menuActual.find(ep => ep.nombre === np.nombre);
-          return existe ? existe : np;
+          return existe ? { ...existe, dias_entrega: np.dias_entrega } : np;
         });
         menu.length = 0;
         menuFinal.forEach(p => menu.push(p));
@@ -1465,7 +1511,7 @@
     const cafeFiltro  = filtroCafeEl.value;
     const fechaFiltro = filtroFechaEl.value;
 
-    if (cafeFiltro) lista = lista.filter(p => p.cafeteria_id === cafeFiltro);
+    if (cafeFiltro)  lista = lista.filter(p => p.cafeteria_id === cafeFiltro);
     if (fechaFiltro) lista = lista.filter(p => p.fecha_entrega === fechaFiltro);
 
     pedidosList.innerHTML = '';
@@ -1478,72 +1524,117 @@
       return;
     }
 
+    const DIAS_ES  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
     const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const MESES_LARGO = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
+    // Agrupar por fecha_entrega (más próxima primero)
+    const grupos = {};
     lista.forEach(p => {
-      const fila = document.createElement('div');
-      fila.className = 'pedido-fila';
+      const k = p.fecha_entrega || 'sin-fecha';
+      if (!grupos[k]) grupos[k] = [];
+      grupos[k].push(p);
+    });
 
-      // Fecha enviado
-      const fe = new Date(p.fecha);
-      const fechaEnvioStr = `${fe.getDate()} ${MESES_ES[fe.getMonth()]} ${fe.getFullYear()}<br>${String(fe.getHours()).padStart(2,'0')}:${String(fe.getMinutes()).padStart(2,'0')}`;
+    const fechasOrdenadas = Object.keys(grupos).sort();
 
-      // Fecha entrega
-      const partes = (p.fecha_entrega || '').split('-');
-      const entregaStr = partes.length === 3
-        ? `${parseInt(partes[2])} ${MESES_ES[parseInt(partes[1])-1]} ${partes[0]}`
-        : (p.fecha_entrega || '—');
+    const hoy = new Date();
+    hoy.setHours(0,0,0,0);
 
-      // Productos
-      const prods = p.productos || [];
-      let prodsHTML = '';
+    fechasOrdenadas.forEach(fechaKey => {
+      const pedidosDelDia = grupos[fechaKey];
+      const partes = fechaKey.split('-');
+      let tituloFecha = fechaKey;
+      let etiqueta = '';
 
-      if (prods.length > 0 && prods[0].sucursal !== undefined) {
-        // Construir tabla: filas=productos, columnas=sucursales
-        const sucursalNames = prods.map(s => s.sucursal);
-        const productosMap = {}; // nombre -> { sucursalName: cantidad }
-        prods.forEach(s => {
-          (s.items || []).forEach(i => {
-            if (!productosMap[i.nombre]) productosMap[i.nombre] = {};
-            productosMap[i.nombre][s.sucursal] = i.cantidad;
-          });
-        });
-        const productosOrdenados = Object.keys(productosMap);
+      if (partes.length === 3) {
+        const d = new Date(parseInt(partes[0]), parseInt(partes[1])-1, parseInt(partes[2]));
+        d.setHours(0,0,0,0);
+        const diff = Math.round((d - hoy) / 86400000);
+        const diaNum = parseInt(partes[2]);
+        const mesNombre = MESES_LARGO[parseInt(partes[1])-1];
+        const diaSemana = DIAS_ES[d.getDay()];
 
-        let headerCols = sucursalNames.map(s => `<th>${s}</th>`).join('');
-        let bodyRows = productosOrdenados.map(nombre => {
-          const celdas = sucursalNames.map(s => {
-            const cant = productosMap[nombre][s];
-            return cant
-              ? `<td class="prod-cant-cell">${cant}</td>`
-              : `<td class="prod-cero">—</td>`;
-          }).join('');
-          return `<tr><td>${nombre}</td>${celdas}</tr>`;
-        }).join('');
+        tituloFecha = `${diaSemana} ${diaNum} de ${mesNombre}`;
 
-        prodsHTML = `<table class="prod-tabla">
-          <thead><tr><th>Producto</th>${headerCols}</tr></thead>
-          <tbody>${bodyRows}</tbody>
-        </table>`;
-      } else {
-        prods.forEach(i => {
-          prodsHTML += `<div class="prod-item"><span class="prod-cant">${i.cantidad}</span><span>${i.nombre}</span></div>`;
-        });
+        if (diff === 0) etiqueta = 'Hoy';
+        else if (diff === 1) etiqueta = 'Mañana';
+        else if (diff === -1) etiqueta = 'Ayer';
+        else if (diff < 0) etiqueta = `Hace ${Math.abs(diff)} días`;
+        else etiqueta = `En ${diff} días`;
       }
 
-      fila.innerHTML = `
-        <div class="pedido-col fecha-col">
-          ${fechaEnvioStr}
-          <br><span style="color:var(--dorado);font-size:11px;font-weight:600">Entrega: ${entregaStr}</span>
+      // Encabezado del grupo
+      const grupoEl = document.createElement('div');
+      grupoEl.className = 'fecha-grupo';
+
+      grupoEl.innerHTML = `
+        <div class="fecha-grupo-header">
+          <div class="fecha-grupo-titulo">${tituloFecha}</div>
+          <div class="fecha-grupo-linea"></div>
+          ${etiqueta ? `<div class="fecha-grupo-badge">${etiqueta}</div>` : ''}
+          <div class="fecha-grupo-badge">${pedidosDelDia.length} pedido${pedidosDelDia.length !== 1 ? 's' : ''}</div>
         </div>
-        <div class="pedido-col">
-          <span class="cafe-badge">${p.cafeteria_nombre || '—'}</span>
-        </div>
-        <div class="pedido-col">${prodsHTML}</div>
-        <div class="pedido-col notas-col">${p.notas || '—'}</div>
       `;
 
-      pedidosList.appendChild(fila);
+      // Cards de pedidos del día
+      pedidosDelDia.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'pedido-card-admin';
+
+        const fe = new Date(p.fecha);
+        const envioStr = `Enviado ${fe.getDate()} ${MESES_ES[fe.getMonth()]} · ${String(fe.getHours()).padStart(2,'0')}:${String(fe.getMinutes()).padStart(2,'0')}`;
+
+        // Construir productos
+        const prods = p.productos || [];
+        let prodsHTML = '';
+
+        if (prods.length > 0 && prods[0].sucursal !== undefined) {
+          const sucursalNames = prods.map(s => s.sucursal);
+          const productosMap = {};
+          prods.forEach(s => {
+            (s.items || []).forEach(i => {
+              if (!productosMap[i.nombre]) productosMap[i.nombre] = {};
+              productosMap[i.nombre][s.sucursal] = i.cantidad;
+            });
+          });
+          const headerCols = sucursalNames.map(s => `<th>${s}</th>`).join('');
+          const bodyRows = Object.keys(productosMap).map(nombre => {
+            const celdas = sucursalNames.map(s => {
+              const cant = productosMap[nombre][s];
+              return cant ? `<td class="prod-cant-cell">${cant}</td>` : `<td class="prod-cero">—</td>`;
+            }).join('');
+            return `<tr><td>${nombre}</td>${celdas}</tr>`;
+          }).join('');
+          prodsHTML = `<div class="pedido-prods-wrap"><table class="prod-tabla">
+            <thead><tr><th>Producto</th>${headerCols}</tr></thead>
+            <tbody>${bodyRows}</tbody>
+          </table></div>`;
+        } else {
+          prodsHTML = prods.map(i =>
+            `<div class="prod-item"><span class="prod-cant">${i.cantidad}</span><span>${i.nombre}</span></div>`
+          ).join('');
+        }
+
+        const notasHTML = p.notas
+          ? `<div class="pedido-notas-admin">📝 ${p.notas}</div>`
+          : '';
+
+        card.innerHTML = `
+          <div class="pedido-card-top">
+            <div class="pedido-cafe-badge">🏪 ${p.cafeteria_nombre || '—'}</div>
+            <div class="pedido-meta">${envioStr}</div>
+          </div>
+          <div class="pedido-card-body">
+            ${prodsHTML}
+            ${notasHTML}
+          </div>
+        `;
+
+        grupoEl.appendChild(card);
+      });
+
+      pedidosList.appendChild(grupoEl);
     });
   }
 
