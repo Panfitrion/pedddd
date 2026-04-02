@@ -807,38 +807,6 @@
 
   .btn-agregar-item:hover { border-color: var(--dorado); color: var(--dorado); }
 
-  .item-dias-wrap {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .item-dias {
-    width: 46px;
-    background: var(--negro4);
-    border: 1px solid var(--gris2);
-    border-radius: 8px;
-    color: var(--blanco);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    padding: 9px 6px;
-    text-align: center;
-    outline: none;
-    transition: border-color 0.15s;
-    -moz-appearance: textfield;
-  }
-
-  .item-dias::-webkit-inner-spin-button,
-  .item-dias::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; }
-  .item-dias:focus { border-color: var(--dorado); }
-  .item-dias::placeholder { color: var(--gris3); }
-
-  .item-dias-label {
-    font-size: 11px;
-    color: var(--gris4);
-    white-space: nowrap;
-  }
 
   .modal-form-footer {
     padding: 16px 24px;
@@ -1323,7 +1291,7 @@
     cafSlugEl.value   = c.slug;
 
     listaProductosEl.innerHTML = '';
-    (c.menu || []).forEach(p => agregarFilaProducto(p.nombre, p.dias_entrega));
+    (c.menu || []).forEach(p => agregarFilaProducto(p.nombre));
 
     listaSucursalesEl.innerHTML = '';
     (c.sucursales || []).forEach(s => agregarFilaSucursal(s));
@@ -1370,15 +1338,11 @@
   }
 
   // Filas de productos
-  function agregarFilaProducto(nombre, dias) {
+  function agregarFilaProducto(nombre) {
     const fila = document.createElement('div');
     fila.className = 'item-fila';
     fila.innerHTML = `
       <input class="item-input" type="text" placeholder="Nombre del producto" value="${nombre || ''}">
-      <div class="item-dias-wrap">
-        <input class="item-dias" type="number" min="1" max="30" placeholder="—" title="Días de entrega automática" value="${dias || ''}">
-        <span class="item-dias-label">días</span>
-      </div>
       <button class="btn-quitar">×</button>
     `;
     fila.querySelector('.btn-quitar').addEventListener('click', () => fila.remove());
@@ -1409,12 +1373,9 @@
     if (!slug)   { toast('El slug es requerido.'); return; }
 
     const menu = Array.from(listaProductosEl.querySelectorAll('.item-fila'))
-      .map(fila => ({
-        nombre: fila.querySelector('.item-input').value.trim(),
-        dias_entrega: parseInt(fila.querySelector('.item-dias').value) || null
-      }))
-      .filter(p => p.nombre)
-      .map(p => ({ id: 'p' + Math.random().toString(36).slice(2,8), nombre: p.nombre, dias_entrega: p.dias_entrega }));
+      .map(fila => fila.querySelector('.item-input').value.trim())
+      .filter(nombre => nombre)
+      .map(nombre => ({ id: 'p' + Math.random().toString(36).slice(2,8), nombre }));
 
     // Mantener IDs existentes al editar
     if (editandoId) {
@@ -1423,7 +1384,7 @@
         const menuActual = cafeActual.menu || [];
         const menuFinal = menu.map(np => {
           const existe = menuActual.find(ep => ep.nombre === np.nombre);
-          return existe ? { ...existe, dias_entrega: np.dias_entrega } : np;
+          return existe ? { ...existe } : np;
         });
         menu.length = 0;
         menuFinal.forEach(p => menu.push(p));
