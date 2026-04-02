@@ -138,6 +138,46 @@
     margin: 0 auto;
   }
 
+  /* ── FECHA SECTION ── */
+  .fecha-section { margin-bottom: 28px; }
+
+  .fecha-btn {
+    width: 100%;
+    background: var(--negro3);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fecha-btn:active { border-color: rgba(201,168,76,0.4); }
+
+  .fecha-btn-left { display: flex; align-items: center; gap: 12px; }
+  .fecha-btn-icono { font-size: 22px; line-height: 1; }
+
+  .fecha-btn-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--gris4);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 2px;
+  }
+
+  .fecha-btn-valor {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--dorado);
+  }
+
+  .fecha-btn-arrow { font-size: 22px; color: var(--gris3); line-height: 1; }
+
   /* ── CALENDARIO SHEET ── */
   .cal-sheet {
     position: fixed;
@@ -1244,6 +1284,21 @@
 <!-- Main -->
 <main class="main" id="mainContent" style="display:none;">
 
+  <!-- Fecha de entrega -->
+  <section class="fecha-section">
+    <div class="section-label">Fecha de entrega</div>
+    <button class="fecha-btn" id="btnAbrirCal">
+      <div class="fecha-btn-left">
+        <div class="fecha-btn-icono">📅</div>
+        <div class="fecha-btn-texto">
+          <div class="fecha-btn-label">Entrega</div>
+          <div class="fecha-btn-valor" id="fechaDisplay">Mañana</div>
+        </div>
+      </div>
+      <div class="fecha-btn-arrow">›</div>
+    </button>
+  </section>
+
   <!-- Productos -->
   <section class="productos-section">
     <div class="section-label">Productos</div>
@@ -1350,8 +1405,7 @@
   // ── ESTADO ──
   let cafeteria = null;         // datos desde Supabase
   let pedidosExistentes = [];   // pedidos de los últimos 15 días
-  let fechaPorProd = {};        // prodId → 'YYYY-MM-DD'
-  let calTarget = null;         // prodId al que se le está asignando fecha
+  let fechaSeleccionada = null; // Date — por defecto mañana
   let calAnio = 0;
   let calMes = 0;
   let cantidades = {};          // { "sucursal|prodId": cantidad }
@@ -1492,99 +1546,80 @@
 
   // ── CALENDARIO ──
   function initCalendario() {
-    const hoy = new Date();
-    calAnio = hoy.getFullYear();
-    calMes  = hoy.getMonth();
+    const manana = new Date();
+    manana.setHours(0, 0, 0, 0);
+    manana.setDate(manana.getDate() + 1);
+    fechaSeleccionada = manana;
+    calAnio = manana.getFullYear();
+    calMes  = manana.getMonth();
+    actualizarDisplayFecha();
+  }
+
+  function actualizarDisplayFecha() {
+    const el = document.getElementById('fechaDisplay');
+    if (!el || !fechaSeleccionada) return;
+    const DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    const MESES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const hoy = new Date(); hoy.setHours(0,0,0,0);
+    const diff = Math.round((fechaSeleccionada - hoy) / 86400000);
+    if (diff === 1) { el.textContent = 'Mañana'; return; }
+    if (diff === 0) { el.textContent = 'Hoy'; return; }
+    el.textContent = `${DIAS[fechaSeleccionada.getDay()]} ${fechaSeleccionada.getDate()} ${MESES[fechaSeleccionada.getMonth()]}`;
   }
 
   function dibujarCal() {
     const hoy = new Date();
     hoy.setHours(0,0,0,0);
-
     const nombreMes = MESES_ES[calMes];
     calMesEl.textContent = `${nombreMes.charAt(0).toUpperCase() + nombreMes.slice(1)} ${calAnio}`;
-
     const primerDia = new Date(calAnio, calMes, 1);
     let inicioSemana = primerDia.getDay();
     inicioSemana = (inicioSemana === 0) ? 6 : inicioSemana - 1;
-
     const diasEnMes = new Date(calAnio, calMes + 1, 0).getDate();
-
     calGrid.innerHTML = '';
-
     for (let i = 0; i < inicioSemana; i++) {
       const v = document.createElement('div');
       v.className = 'cal-dia vacio';
       calGrid.appendChild(v);
     }
-
-    // Fecha seleccionada actualmente para el target
-    const fechaTargetStr = calTarget ? (fechaPorProd[calTarget] || null) : null;
-
     for (let d = 1; d <= diasEnMes; d++) {
       const fecha = new Date(calAnio, calMes, d);
       fecha.setHours(0,0,0,0);
       const cel = document.createElement('div');
       cel.className = 'cal-dia';
       cel.textContent = d;
-
       const esHoy = fecha.getTime() === hoy.getTime();
       const esPasado = fecha < hoy;
       const conPedido = tienePedidoEnFecha(fecha);
-      const esSeleccionado = fechaTargetStr && fechaStr(fecha) === fechaTargetStr;
-
+      const esSeleccionado = fechaSeleccionada && fecha.getTime() === fechaSeleccionada.getTime();
       if (esPasado) cel.classList.add('pasado');
       else if (conPedido) cel.classList.add('con-pedido');
       else if (esSeleccionado) cel.classList.add('seleccionado');
       else if (esHoy) cel.classList.add('hoy');
-
-      if (!esPasado && !conPedido) {
-        cel.addEventListener('click', () => seleccionarFecha(fecha));
-      }
-
+      if (!esPasado && !conPedido) cel.addEventListener('click', () => seleccionarFecha(fecha));
       calGrid.appendChild(cel);
     }
   }
 
   calPrev.addEventListener('click', () => {
-    calMes--;
-    if (calMes < 0) { calMes = 11; calAnio--; }
-    dibujarCal();
+    calMes--; if (calMes < 0) { calMes = 11; calAnio--; } dibujarCal();
   });
-
   calNext.addEventListener('click', () => {
-    calMes++;
-    if (calMes > 11) { calMes = 0; calAnio++; }
-    dibujarCal();
+    calMes++; if (calMes > 11) { calMes = 0; calAnio++; } dibujarCal();
   });
 
   function seleccionarFecha(fecha) {
-    if (tienePedidoEnFecha(fecha)) {
-      toast('Ya tienes un pedido para esta fecha.');
-      return;
-    }
-    if (!calTarget) return;
-    fechaPorProd[calTarget] = fechaStr(fecha);
-    actualizarChipFecha(calTarget);
+    if (tienePedidoEnFecha(fecha)) { toast('Ya tienes un pedido para esta fecha.'); return; }
+    fechaSeleccionada = fecha;
+    actualizarDisplayFecha();
     cerrarCalSheet();
     actualizarBarra();
   }
 
-  function abrirCalSheet(prodId) {
-    calTarget = prodId;
-    // Posicionar el calendario en el mes de la fecha actual del producto (si tiene)
-    const fechaActual = fechaPorProd[prodId];
-    if (fechaActual) {
-      const d = new Date(fechaActual + 'T00:00:00');
-      calAnio = d.getFullYear();
-      calMes = d.getMonth();
-    } else {
-      const hoy = new Date();
-      calAnio = hoy.getFullYear();
-      calMes = hoy.getMonth();
-    }
-    const prod = (cafeteria.menu || []).find(p => p.id === prodId);
-    calSheetTituloEl.textContent = prod ? `Entrega: ${prod.nombre}` : 'Fecha de entrega';
+  function abrirCalSheet() {
+    calAnio = fechaSeleccionada.getFullYear();
+    calMes  = fechaSeleccionada.getMonth();
+    calSheetTituloEl.textContent = 'Fecha de entrega';
     dibujarCal();
     calOverlayEl.classList.add('visible');
     calSheetEl.classList.add('visible');
@@ -1593,28 +1628,11 @@
   function cerrarCalSheet() {
     calOverlayEl.classList.remove('visible');
     calSheetEl.classList.remove('visible');
-    calTarget = null;
   }
 
   btnCerrarCalEl.addEventListener('click', cerrarCalSheet);
   calOverlayEl.addEventListener('click', cerrarCalSheet);
-
-  function actualizarChipFecha(prodId) {
-    const chips = document.querySelectorAll(`.fecha-chip[data-prod="${prodId}"]`);
-    const fecha = fechaPorProd[prodId];
-    const DIAS_CORTO = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-    const MESES_CORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    chips.forEach(chip => {
-      if (fecha) {
-        const d = new Date(fecha + 'T00:00:00');
-        chip.textContent = `📅 ${DIAS_CORTO[d.getDay()]} ${d.getDate()} ${MESES_CORTO[d.getMonth()]}`;
-        chip.classList.remove('sin-fecha');
-      } else {
-        chip.textContent = '+ Fecha';
-        chip.classList.add('sin-fecha');
-      }
-    });
-  }
+  document.getElementById('btnAbrirCal').addEventListener('click', abrirCalSheet);
 
   // ── PRODUCTOS ──
   function renderProductos() {
@@ -1674,21 +1692,7 @@
       const tr = document.createElement('tr');
       const tdNombre = document.createElement('td');
 
-      const nombreWrap = document.createElement('div');
-      nombreWrap.style.cssText = 'display:flex;flex-direction:column;align-items:flex-start;gap:3px';
-
-      const nombreSpan = document.createElement('span');
-      nombreSpan.textContent = prod.nombre;
-
-      const chip = document.createElement('button');
-      chip.className = 'fecha-chip sin-fecha';
-      chip.dataset.prod = prod.id;
-      chip.textContent = '+ Fecha';
-      chip.addEventListener('click', () => abrirCalSheet(prod.id));
-
-      nombreWrap.appendChild(nombreSpan);
-      nombreWrap.appendChild(chip);
-      tdNombre.appendChild(nombreWrap);
+      tdNombre.textContent = prod.nombre;
       tr.appendChild(tdNombre);
 
       sucursales.forEach(suc => {
@@ -1752,7 +1756,6 @@
     cantidades[key] = nuevo;
     actualizarCantUI(key);
     actualizarTotalSucursal(suc);
-    if (nuevo > 0) aplicarFechaAuto(prod);
     actualizarBarra();
   }
 
@@ -1760,37 +1763,17 @@
     const key = `${suc}|${prod.id}`;
     const fila = document.createElement('div');
     fila.className = 'producto-row';
-
-    const nombreDiv = document.createElement('div');
-    nombreDiv.className = 'producto-nombre';
-
-    const nombreSpan = document.createElement('span');
-    nombreSpan.textContent = prod.nombre;
-
-    const chip = document.createElement('button');
-    chip.className = 'fecha-chip sin-fecha';
-    chip.dataset.prod = prod.id;
-    chip.textContent = '+ Fecha';
-    chip.addEventListener('click', () => abrirCalSheet(prod.id));
-
-    nombreDiv.appendChild(nombreSpan);
-    nombreDiv.appendChild(chip);
-
-    const ctrl = document.createElement('div');
-    ctrl.className = 'cantidad-ctrl';
-    ctrl.innerHTML = `
-      <button class="btn-cant btn-menos">−</button>
-      <div class="cant-num" id="cant-${key}">0</div>
-      <button class="btn-cant btn-mas">+</button>
+    fila.innerHTML = `
+      <div class="producto-nombre">${prod.nombre}</div>
+      <div class="cantidad-ctrl">
+        <button class="btn-cant btn-menos">−</button>
+        <div class="cant-num" id="cant-${key}">0</div>
+        <button class="btn-cant btn-mas">+</button>
+      </div>
     `;
-
-    fila.appendChild(nombreDiv);
-    fila.appendChild(ctrl);
-
-    ctrl.querySelector('.btn-menos').addEventListener('click', () => cambiarCant(key, -1, prod, suc));
-    ctrl.querySelector('.btn-mas').addEventListener('click', () => cambiarCant(key, 1, prod, suc));
-    ctrl.querySelector('.cant-num').addEventListener('click', () => abrirTeclado(key, prod.nombre));
-
+    fila.querySelector('.btn-menos').addEventListener('click', () => cambiarCant(key, -1, prod, suc));
+    fila.querySelector('.btn-mas').addEventListener('click', () => cambiarCant(key, 1, prod, suc));
+    fila.querySelector('.cant-num').addEventListener('click', () => abrirTeclado(key, prod.nombre));
     return fila;
   }
 
@@ -1799,23 +1782,6 @@
     cantidades[key] = nuevo;
     actualizarCantUI(key);
     if (suc) actualizarTotalSucursal(suc);
-    if (nuevo > 0) aplicarFechaAuto(prod);
-    actualizarBarra();
-  }
-
-  function aplicarFechaAuto(prod) {
-    if (!prod || !prod.dias_entrega) return;
-    if (fechaPorProd[prod.id]) return; // ya tiene fecha asignada
-    const propuesta = new Date();
-    propuesta.setHours(0, 0, 0, 0);
-    propuesta.setDate(propuesta.getDate() + prod.dias_entrega);
-    let intentos = 0;
-    while (tienePedidoEnFecha(propuesta) && intentos < 30) {
-      propuesta.setDate(propuesta.getDate() + 1);
-      intentos++;
-    }
-    fechaPorProd[prod.id] = fechaStr(propuesta);
-    actualizarChipFecha(prod.id);
     actualizarBarra();
   }
 
@@ -1841,31 +1807,10 @@
 
   function actualizarBarra() {
     const total = totalPiezas();
-    if (total === 0) {
-      barraEnvio.classList.remove('visible');
-      return;
-    }
-    barraEnvio.classList.add('visible');
     barraTotalEl.innerHTML = `${total} <span>piezas</span>`;
-
-    // Productos activos (cantidad > 0)
-    const prodIdsActivos = new Set();
-    Object.entries(cantidades).forEach(([k, v]) => {
-      if (v > 0) prodIdsActivos.add(k.split('|')[1]);
-    });
-
-    const sinFecha = [...prodIdsActivos].filter(id => !fechaPorProd[id]).length;
-
-    if (sinFecha > 0) {
-      btnConfirmar.disabled = true;
-      btnConfirmar.textContent = `Falta fecha (${sinFecha})`;
-    } else {
-      const fechasActivas = new Set([...prodIdsActivos].map(id => fechaPorProd[id]).filter(Boolean));
-      btnConfirmar.disabled = false;
-      btnConfirmar.textContent = fechasActivas.size > 1
-        ? `Confirmar ${fechasActivas.size} pedidos`
-        : 'Confirmar pedido';
-    }
+    barraEnvio.classList.toggle('visible', total > 0);
+    btnConfirmar.disabled = total === 0;
+    btnConfirmar.textContent = 'Confirmar pedido';
   }
 
   // ── TECLADO NUMÉRICO ──
@@ -1932,10 +1877,6 @@
     actualizarCantUI(tecladoTarget.key);
     const partes = tecladoTarget.key.split('|');
     if (partes[0]) actualizarTotalSucursal(partes[0]);
-    if (val > 0) {
-      const prod = (cafeteria.menu || []).find(p => p.id === partes[1]);
-      aplicarFechaAuto(prod);
-    }
     actualizarBarra();
     cerrarTeclado();
   });
@@ -1944,102 +1885,74 @@
 
   // ── ENVIAR PEDIDO ──
   btnConfirmar.addEventListener('click', async () => {
+    if (!fechaSeleccionada) { toast('Selecciona una fecha de entrega.'); return; }
     if (totalPiezas() === 0) { toast('Agrega al menos un producto.'); return; }
-
-    const menu = cafeteria.menu || [];
-    const sucursales = cafeteria.sucursales || [];
-
-    // Agrupar productos por fecha
-    const porFecha = {}; // 'YYYY-MM-DD' → [{ suc, prod, cant }]
-    Object.entries(cantidades).forEach(([key, cant]) => {
-      if (!cant || cant <= 0) return;
-      const partes = key.split('|');
-      const suc = partes[0];
-      const prodId = partes[1];
-      const fecha = fechaPorProd[prodId];
-      if (!fecha) return;
-      const prod = menu.find(p => p.id === prodId);
-      if (!prod) return;
-      if (!porFecha[fecha]) porFecha[fecha] = [];
-      porFecha[fecha].push({ suc, prod, cant });
-    });
-
-    const fechas = Object.keys(porFecha).sort();
-    if (fechas.length === 0) { toast('Agrega al menos un producto con fecha.'); return; }
+    if (tienePedidoEnFecha(fechaSeleccionada)) { toast('Ya tienes un pedido para esta fecha.'); return; }
 
     btnConfirmar.disabled = true;
     btnConfirmar.textContent = 'Enviando…';
 
-    const pedidosACrear = fechas.map(fecha => {
-      const items = porFecha[fecha];
-      let productos;
+    const menu = cafeteria.menu || [];
+    const sucursales = cafeteria.sucursales || [];
+    let productos;
 
-      if (sucursales.length > 0) {
-        const porSuc = {};
-        items.forEach(({ suc, prod, cant }) => {
-          if (!porSuc[suc]) porSuc[suc] = [];
-          porSuc[suc].push({ id: prod.id, nombre: prod.nombre, cantidad: cant });
-        });
-        productos = sucursales
-          .filter(s => porSuc[s] && porSuc[s].length > 0)
-          .map(s => ({ sucursal: s, items: porSuc[s] }));
-      } else {
-        productos = items.map(({ prod, cant }) => ({ id: prod.id, nombre: prod.nombre, cantidad: cant }));
-      }
+    if (sucursales.length > 0) {
+      productos = sucursales.map(suc => ({
+        sucursal: suc,
+        items: menu
+          .filter(p => (cantidades[`${suc}|${p.id}`] || 0) > 0)
+          .map(p => ({ id: p.id, nombre: p.nombre, cantidad: cantidades[`${suc}|${p.id}`] }))
+      })).filter(s => s.items.length > 0);
+    } else {
+      productos = menu
+        .filter(p => (cantidades[`|${p.id}`] || 0) > 0)
+        .map(p => ({ id: p.id, nombre: p.nombre, cantidad: cantidades[`|${p.id}`] }));
+    }
 
-      return {
-        cafeteria_id:     cafeteria.id,
-        cafeteria_nombre: cafeteria.nombre,
-        productos,
-        notas:            notasInput.value.trim(),
-        fecha_entrega:    fecha,
-        fecha:            new Date().toISOString()
-      };
-    });
+    const pedido = {
+      cafeteria_id:     cafeteria.id,
+      cafeteria_nombre: cafeteria.nombre,
+      productos,
+      notas:            notasInput.value.trim(),
+      fecha_entrega:    fechaStr(fechaSeleccionada),
+      fecha:            new Date().toISOString()
+    };
 
-    const { data, error } = await db.from('pedidos').insert(pedidosACrear).select();
+    const { data, error } = await db.from('pedidos').insert([pedido]).select();
+
+    btnConfirmar.textContent = 'Confirmar pedido';
 
     if (error) {
-      toast('Error al enviar. Intenta de nuevo.');
+      toast('Error al enviar el pedido. Intenta de nuevo.');
       btnConfirmar.disabled = false;
-      actualizarBarra();
       return;
     }
 
-    ultimoPedidoData = pedidosACrear;
-    (data || []).forEach((d, i) => pedidosExistentes.push({ ...pedidosACrear[i], id: d.id }));
-    mostrarModalExito(pedidosACrear);
+    ultimoPedidoData = pedido;
+    pedidosExistentes.push({ ...pedido, id: data[0].id });
+    mostrarModalExito(pedido);
     resetFormulario();
   });
 
   function resetFormulario() {
     cantidades = {};
-    fechaPorProd = {};
     renderProductos();
     notasInput.value = '';
     barraEnvio.classList.remove('visible');
-    const hoy = new Date();
-    calAnio = hoy.getFullYear();
-    calMes = hoy.getMonth();
+    const manana = new Date();
+    manana.setHours(0, 0, 0, 0);
+    manana.setDate(manana.getDate() + 1);
+    fechaSeleccionada = manana;
+    calAnio = manana.getFullYear();
+    calMes  = manana.getMonth();
+    actualizarDisplayFecha();
   }
 
   // ── MODAL ÉXITO ──
-  function mostrarModalExito(pedidos) {
-    const DIAS_CORTO = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-    const MESES_CORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    if (pedidos.length === 1) {
-      const p = pedidos[0];
-      const d = new Date(p.fecha_entrega + 'T00:00:00');
-      const partes = p.fecha_entrega.split('-');
-      modalSubtituloEl.textContent = `Entrega el ${DIAS_ES[d.getDay()]} ${parseInt(partes[2])} de ${MESES_ES[parseInt(partes[1])-1]}.`;
-    } else {
-      const lineas = pedidos.map(p => {
-        const d = new Date(p.fecha_entrega + 'T00:00:00');
-        const partes = p.fecha_entrega.split('-');
-        return `${DIAS_CORTO[d.getDay()]} ${parseInt(partes[2])} ${MESES_CORTO[parseInt(partes[1])-1]}`;
-      }).join(' · ');
-      modalSubtituloEl.textContent = `${pedidos.length} pedidos confirmados: ${lineas}`;
-    }
+  function mostrarModalExito(pedido) {
+    const partes = pedido.fecha_entrega.split('-');
+    const d = new Date(pedido.fecha_entrega + 'T00:00:00');
+    modalSubtituloEl.textContent = `Entrega el ${DIAS_ES[d.getDay()]} ${parseInt(partes[2])} de ${MESES_ES[parseInt(partes[1])-1]}.`;
     modalExito.classList.add('visible');
   }
 
@@ -2068,30 +1981,28 @@
     }
   });
 
-  function generarTextoWA(pedidos) {
+  function generarTextoWA(pedido) {
     const DIAS_CORTO = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
     const MESES_CORTO = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const d = new Date(pedido.fecha_entrega + 'T00:00:00');
+    const partes = pedido.fecha_entrega.split('-');
     let txt = `🍞 *Pedido Panfitrión*\n`;
-    txt += `📍 ${pedidos[0].cafeteria_nombre}\n\n`;
+    txt += `📍 ${pedido.cafeteria_nombre}\n`;
+    txt += `📅 Entrega: ${DIAS_CORTO[d.getDay()]} ${parseInt(partes[2])} de ${MESES_CORTO[parseInt(partes[1])-1]}\n\n`;
 
-    pedidos.forEach(pedido => {
-      const d = new Date(pedido.fecha_entrega + 'T00:00:00');
-      const partes = pedido.fecha_entrega.split('-');
-      txt += `📅 *${DIAS_CORTO[d.getDay()]} ${parseInt(partes[2])} de ${MESES_CORTO[parseInt(partes[1])-1]}*\n`;
-
-      const prods = pedido.productos;
-      if (prods.length > 0 && prods[0].sucursal) {
-        prods.forEach(s => {
-          txt += `  *${s.sucursal}*\n`;
-          s.items.forEach(i => { txt += `  • ${i.nombre}: ${i.cantidad}\n`; });
-        });
-      } else {
-        prods.forEach(i => { txt += `  • ${i.nombre}: ${i.cantidad}\n`; });
-      }
+    const prods = pedido.productos;
+    if (prods.length > 0 && prods[0].sucursal) {
+      prods.forEach(s => {
+        txt += `*${s.sucursal}*\n`;
+        s.items.forEach(i => { txt += `• ${i.nombre}: ${i.cantidad}\n`; });
+        txt += '\n';
+      });
+    } else {
+      prods.forEach(i => { txt += `• ${i.nombre}: ${i.cantidad}\n`; });
       txt += '\n';
-    });
+    }
 
-    if (pedidos[0].notas) txt += `📝 ${pedidos[0].notas}`;
+    if (pedido.notas) txt += `📝 ${pedido.notas}`;
     return txt.trim();
   }
 
