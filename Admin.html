@@ -1227,8 +1227,21 @@
   }
 
   async function cargarPedidos() {
-    const { data } = await db.from('pedidos').select('*').order('fecha', { ascending: false });
-    pedidos = data || [];
+    const { data, error } = await db.from('pedidos').select('*').order('fecha', { ascending: false });
+    if (error) {
+      console.error('Error cargando pedidos:', error);
+      pedidos = [];
+      pedidosList.innerHTML = `<div class="empty-state" style="padding:40px">
+        <div class="empty-state-ico">⚠️</div>
+        <div class="empty-state-txt">Error al cargar pedidos. Recarga la página.</div>
+      </div>`;
+      return;
+    }
+    pedidos = (data || []).map(p => ({
+      ...p,
+      cafeteria_id: p.cafeteria_id != null ? String(p.cafeteria_id) : p.cafeteria_id
+    }));
+    console.log('Pedidos cargados', pedidos);
     renderPedidos();
   }
 
@@ -1493,23 +1506,24 @@
   }
 
   function renderPedidos() {
-    let lista = [...pedidos];
+    try {
+      let lista = [...pedidos];
 
-    const cafeFiltro  = filtroCafeEl.value;
-    const fechaFiltro = filtroFechaEl.value;
+      const cafeFiltro  = filtroCafeEl.value;
+      const fechaFiltro = filtroFechaEl.value;
 
-    if (cafeFiltro)  lista = lista.filter(p => p.cafeteria_id === cafeFiltro);
-    if (fechaFiltro) lista = lista.filter(p => p.fecha_entrega === fechaFiltro);
+      if (cafeFiltro)  lista = lista.filter(p => p.cafeteria_id === cafeFiltro);
+      if (fechaFiltro) lista = lista.filter(p => p.fecha_entrega === fechaFiltro);
 
-    pedidosList.innerHTML = '';
+      pedidosList.innerHTML = '';
 
-    if (lista.length === 0) {
-      pedidosList.innerHTML = `<div class="empty-state" style="padding:40px">
-        <div class="empty-state-ico">📋</div>
-        <div class="empty-state-txt">No hay pedidos con estos filtros.</div>
-      </div>`;
-      return;
-    }
+      if (lista.length === 0) {
+        pedidosList.innerHTML = `<div class="empty-state" style="padding:40px">
+          <div class="empty-state-ico">📋</div>
+          <div class="empty-state-txt">No hay pedidos con estos filtros.</div>
+        </div>`;
+        return;
+      }
 
     const DIAS_ES  = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
     const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
@@ -1518,7 +1532,9 @@
     // Agrupar por fecha_entrega (más próxima primero)
     const grupos = {};
     lista.forEach(p => {
-      const k = p.fecha_entrega || 'sin-fecha';
+      const k = p.fecha_entrega != null
+        ? (typeof p.fecha_entrega === 'string' ? p.fecha_entrega : new Date(p.fecha_entrega).toISOString().slice(0, 10))
+        : 'sin-fecha';
       if (!grupos[k]) grupos[k] = [];
       grupos[k].push(p);
     });
@@ -1530,7 +1546,7 @@
 
     fechasOrdenadas.forEach(fechaKey => {
       const pedidosDelDia = grupos[fechaKey];
-      const partes = fechaKey.split('-');
+      const partes = String(fechaKey).split('-');
       let tituloFecha = fechaKey;
       let etiqueta = '';
 
@@ -1623,7 +1639,14 @@
 
       pedidosList.appendChild(grupoEl);
     });
+  } catch (err) {
+    console.error('Error al renderizar pedidos:', err);
+    pedidosList.innerHTML = `<div class="empty-state" style="padding:40px">
+      <div class="empty-state-ico">⚠️</div>
+      <div class="empty-state-txt">Error al mostrar los pedidos. Revisa la consola.</div>
+    </div>`;
   }
+}
 
   filtroCafeEl.addEventListener('change', renderPedidos);
   filtroFechaEl.addEventListener('change', renderPedidos);
