@@ -1114,6 +1114,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
   // ── CONFIG ──
   const SUPABASE_URL  = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
@@ -1686,8 +1687,8 @@
 
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const margen = 40;
-    const anchoUtil = 595.28 - margen * 2;
     let y = 48;
+    const anchoUtil = 595.28 - margen * 2;
 
     const fechaObj = new Date(fecha + 'T00:00:00');
     const tituloFecha = fechaObj.toLocaleDateString('es-ES', {
@@ -1695,62 +1696,97 @@
     });
 
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(16);
+    doc.setFontSize(18);
     doc.text(`Pedidos del día ${tituloFecha}`, margen, y);
-    y += 26;
+    y += 30;
+
+    doc.setFontSize(11);
+    doc.setTextColor(100);
+    doc.text(`Total de pedidos: ${pedidosDia.length}`, margen, y);
+    y += 20;
+    doc.setTextColor(0);
 
     const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
-    Object.keys(pedidosPorCafe).sort().forEach(cafeNombre => {
-      if (y > 740) { doc.addPage(); y = 48; }
+    Object.keys(pedidosPorCafe).sort().forEach((cafeNombre, cafeIndex) => {
+      if (y > 700) { doc.addPage(); y = 48; }
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(14);
       doc.text(`Cafetería: ${cafeNombre}`, margen, y);
-      y += 20;
+      y += 22;
 
-      pedidosPorCafe[cafeNombre].forEach(pedido => {
-        if (y > 760) { doc.addPage(); y = 48; }
-
+      const pedidosCafe = pedidosPorCafe[cafeNombre];
+      pedidosCafe.forEach((pedido, pedidoIndex) => {
         const fechaEnvio = pedido.fecha ? new Date(pedido.fecha) : null;
         const envioTexto = fechaEnvio
           ? `Enviado ${String(fechaEnvio.getDate()).padStart(2,'0')} ${MESES_ES[fechaEnvio.getMonth()]} · ${String(fechaEnvio.getHours()).padStart(2,'0')}:${String(fechaEnvio.getMinutes()).padStart(2,'0')}`
-          : '';
+          : 'Enviado: -';
 
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
-        const tituloPedido = `Pedido ${pedido.id || ''} ${envioTexto}`.trim();
-        const tituloLines = doc.splitTextToSize(tituloPedido, anchoUtil);
-        doc.text(tituloLines, margen, y);
-        y += tituloLines.length * 14;
-
-        const productos = pedido.productos || [];
+        doc.text(`Pedido ${pedido.id || pedidoIndex + 1}`, margen, y);
         doc.setFont('helvetica', 'normal');
-        doc.setFontSize(11);
-        if (productos.length > 0) {
-          productos.forEach(item => {
-            if (y > 760) { doc.addPage(); y = 48; }
-            const linea = `• ${item.cantidad} x ${item.nombre}`;
-            const texto = doc.splitTextToSize(linea, anchoUtil - 20);
-            doc.text(texto, margen + 10, y);
-            y += texto.length * 14;
+        doc.text(envioTexto, margen + 280, y);
+        y += 18;
+
+        const prods = pedido.productos || [];
+        const rows = [];
+
+        if (prods.length > 0 && prods[0].sucursal !== undefined) {
+          prods.forEach(s => {
+            const sucursal = s.sucursal || 'Sin sucursal';
+            (s.items || []).forEach(item => {
+              rows.push([sucursal, String(item.cantidad), item.nombre]);
+            });
           });
         } else {
-          if (y > 760) { doc.addPage(); y = 48; }
-          doc.text('• Sin productos registrados', margen + 10, y);
-          y += 14;
+          prods.forEach(item => {
+            rows.push(['-', String(item.cantidad), item.nombre]);
+          });
         }
+
+        if (rows.length === 0) {
+          rows.push(['-', '-', 'Sin productos registrados']);
+        }
+
+        if (doc.previousAutoTable) {
+          // no-op
+        }
+
+        doc.autoTable({
+          startY: y,
+          margin: { left: margen, right: margen },
+          theme: 'striped',
+          headStyles: { fillColor: [201, 168, 76], textColor: 0 },
+          styles: { fontSize: 10, cellPadding: 5, textColor: 20 },
+          head: [['Sucursal', 'Cantidad', 'Producto']],
+          body: rows,
+          tableWidth: anchoUtil,
+          didDrawPage: function (data) {
+            // preserve y position after table draw
+          }
+        });
+
+        y = doc.lastAutoTable.finalY + 12;
 
         if (pedido.notas) {
-          if (y > 740) { doc.addPage(); y = 48; }
-          const notas = doc.splitTextToSize(`Notas: ${pedido.notas}`, anchoUtil - 20);
-          doc.text(notas, margen + 10, y);
-          y += notas.length * 14;
+          const notas = doc.splitTextToSize(`Notas: ${pedido.notas}`, anchoUtil);
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(10);
+          doc.text(notas, margen, y);
+          y += notas.length * 14 + 8;
+          doc.setFont('helvetica', 'normal');
         }
 
-        y += 12;
+        if (y > 700) {
+          doc.addPage();
+          y = 48;
+        }
       });
 
-      y += 12;
+      if (cafeIndex < Object.keys(pedidosPorCafe).length - 1) {
+        y += 10;
+      }
     });
 
     const archivo = `pedidos-${fecha}.pdf`;
