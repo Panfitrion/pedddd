@@ -370,7 +370,7 @@
     text-overflow: ellipsis;
   }
 
-  .btn-copiar {
+  .btn-copiar, .btn-ir-pedido {
     background: var(--gris1);
     border: none;
     color: var(--blanco);
@@ -385,7 +385,8 @@
     flex-shrink: 0;
   }
 
-  .btn-copiar:active { background: var(--gris2); }
+  .btn-copiar:active,
+  .btn-ir-pedido:active { background: var(--gris2); }
   .btn-copiar.copiado { color: var(--dorado); }
 
   .cafe-stats {
@@ -479,6 +480,21 @@
   }
 
   .btn-limpiar-filtros:hover { background: var(--gris2); color: var(--blanco); }
+
+  .btn-descargar-pdf {
+    background: var(--dorado);
+    border: none;
+    color: var(--negro);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+  }
+
+  .btn-descargar-pdf:hover { background: var(--dorado2); color: var(--negro); }
 
   /* ── PANEL PEDIDOS — CARDS ── */
   .fecha-grupo {
@@ -1032,6 +1048,7 @@
             <option value="">Todas las cafeterías</option>
           </select>
           <input class="filtro-input" type="date" id="filtroFecha" placeholder="Fecha entrega">
+          <button class="btn-descargar-pdf" id="btnDescargarPDF">Descargar PDF</button>
           <button class="btn-limpiar-filtros" id="btnLimpiarFiltros">Limpiar</button>
         </div>
         <div id="pedidosList">
@@ -1096,6 +1113,7 @@
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   // ── CONFIG ──
   const SUPABASE_URL  = 'https://wttdrnftxmdqnfauhkkp.supabase.co';
@@ -1128,6 +1146,7 @@
   const cafeteriasGrid = document.getElementById('cafeteriasGrid');
   const filtroCafeEl   = document.getElementById('filtroCafe');
   const filtroFechaEl  = document.getElementById('filtroFecha');
+  const btnDescargarPDF = document.getElementById('btnDescargarPDF');
   const btnLimpiarFil  = document.getElementById('btnLimpiarFiltros');
   const pedidosList    = document.getElementById('pedidosList');
   const modalCafeEl    = document.getElementById('modalCafe');
@@ -1263,6 +1282,13 @@
           setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copiado'); }, 2000);
         });
       });
+
+      const irBtn = document.createElement('button');
+      irBtn.className = 'btn-ir-pedido';
+      irBtn.textContent = 'Ir a pedido';
+      irBtn.style.marginLeft = '8px';
+      irBtn.addEventListener('click', () => window.open(link, '_blank', 'noopener'));
+      card.querySelector('.cafe-link-row').appendChild(irBtn);
 
       card.querySelector('.editar').addEventListener('click', () => abrirEditarCafe(c.id));
       card.querySelector('.eliminar').addEventListener('click', () => confirmarEliminar(c.id, c.nombre));
@@ -1601,11 +1627,113 @@
 
   filtroCafeEl.addEventListener('change', renderPedidos);
   filtroFechaEl.addEventListener('change', renderPedidos);
+  btnDescargarPDF.addEventListener('click', generarPDFPedidosDia);
   btnLimpiarFil.addEventListener('click', () => {
     filtroCafeEl.value = '';
     filtroFechaEl.value = '';
     renderPedidos();
   });
+
+  // ── GENERAR PDF ──
+  function generarPDFPedidosDia() {
+    const fecha = filtroFechaEl.value;
+    if (!fecha) {
+      toast('Selecciona primero un día para generar el PDF.');
+      return;
+    }
+
+    const pedidosDia = pedidos.filter(p => p.fecha_entrega === fecha);
+    if (pedidosDia.length === 0) {
+      toast('No hay pedidos para la fecha seleccionada.');
+      return;
+    }
+
+    const pedidosPorCafe = pedidosDia.reduce((acc, pedido) => {
+      const nombre = pedido.cafeteria_nombre || 'Sin cafetería';
+      if (!acc[nombre]) acc[nombre] = [];
+      acc[nombre].push(pedido);
+      return acc;
+    }, {});
+
+    const { jsPDF } = window.jspdf || {};
+    if (!jsPDF) {
+      toast('No se pudo cargar la librería PDF.');
+      return;
+    }
+
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const margen = 40;
+    const anchoUtil = 595.28 - margen * 2;
+    let y = 48;
+
+    const fechaObj = new Date(fecha + 'T00:00:00');
+    const tituloFecha = fechaObj.toLocaleDateString('es-ES', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(`Pedidos del día ${tituloFecha}`, margen, y);
+    y += 26;
+
+    const MESES_ES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+
+    Object.keys(pedidosPorCafe).sort().forEach(cafeNombre => {
+      if (y > 740) { doc.addPage(); y = 48; }
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(14);
+      doc.text(`Cafetería: ${cafeNombre}`, margen, y);
+      y += 20;
+
+      pedidosPorCafe[cafeNombre].forEach(pedido => {
+        if (y > 760) { doc.addPage(); y = 48; }
+
+        const fechaEnvio = pedido.fecha ? new Date(pedido.fecha) : null;
+        const envioTexto = fechaEnvio
+          ? `Enviado ${String(fechaEnvio.getDate()).padStart(2,'0')} ${MESES_ES[fechaEnvio.getMonth()]} · ${String(fechaEnvio.getHours()).padStart(2,'0')}:${String(fechaEnvio.getMinutes()).padStart(2,'0')}`
+          : '';
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        const tituloPedido = `Pedido ${pedido.id || ''} ${envioTexto}`.trim();
+        const tituloLines = doc.splitTextToSize(tituloPedido, anchoUtil);
+        doc.text(tituloLines, margen, y);
+        y += tituloLines.length * 14;
+
+        const productos = pedido.productos || [];
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(11);
+        if (productos.length > 0) {
+          productos.forEach(item => {
+            if (y > 760) { doc.addPage(); y = 48; }
+            const linea = `• ${item.cantidad} x ${item.nombre}`;
+            const texto = doc.splitTextToSize(linea, anchoUtil - 20);
+            doc.text(texto, margen + 10, y);
+            y += texto.length * 14;
+          });
+        } else {
+          if (y > 760) { doc.addPage(); y = 48; }
+          doc.text('• Sin productos registrados', margen + 10, y);
+          y += 14;
+        }
+
+        if (pedido.notas) {
+          if (y > 740) { doc.addPage(); y = 48; }
+          const notas = doc.splitTextToSize(`Notas: ${pedido.notas}`, anchoUtil - 20);
+          doc.text(notas, margen + 10, y);
+          y += notas.length * 14;
+        }
+
+        y += 12;
+      });
+
+      y += 12;
+    });
+
+    const archivo = `pedidos-${fecha}.pdf`;
+    doc.save(archivo);
+    toast(`PDF generado para ${fecha}.`);
+  }
 
   // ── TOAST ──
   let toastTimer;
